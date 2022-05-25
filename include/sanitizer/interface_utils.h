@@ -3,7 +3,7 @@
 #define ATTR_INTERFACE __attribute__((visibility("default")))
 #define ATTR_WEAK __attribute__((weak))
 #define ATTR_NORETURN __attribute__((noreturn))
-#define ATTR_ALIAS(x) __attribute__((alias(x)))
+#define ATTR_ALIAS(x) __attribute__((weak, alias(x)))
 
 #ifdef __cplusplus
 #define EXTERN_C extern "C"

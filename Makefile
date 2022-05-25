@@ -3,10 +3,14 @@ LDFLAGS+=-shared
 INC_DIR=-Iinclude
 
 SRC_DIR=src
+COMMON_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/common))
+
 UBSAN_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/ubsan))
+UBSAN_SRC += $(COMMON_SRC)
 UBSAN_OBJ := $(patsubst %.c, %.o, $(UBSAN_SRC))
 
 ASAN_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/asan))
+ASAN_SRC += $(COMMON_SRC)
 ASAN_OBJ := $(patsubst %.c, %.o, $(ASAN_SRC))
 
 OUT_DIR=lib
