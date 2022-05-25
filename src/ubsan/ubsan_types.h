@@ -10,7 +10,7 @@ typedef struct {
   SourceLocation Loc;
   REFERENCE(const TypeDescriptor) Type;
   unsigned char Alignment;
-  unsigned char TypeCheckKind;
+  unsigned char Kind; // TypeKind
 } TypeMismatchData;
 
 typedef struct {
@@ -61,7 +61,7 @@ typedef struct {
 
 typedef struct {
   SourceLocation Loc;
-  unsigned char Kind; // BuiltinCheckKind
+  unsigned char Kind; // BuiltinKind
 } InvalidBuiltinData;
 
 typedef struct {
