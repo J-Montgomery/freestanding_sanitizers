@@ -3,6 +3,14 @@
 
 #include "logger.h"
 
+// Declare our aliases
+EXTERN_C ATTR_ALIAS("__sanitizer_log_puts_impl") void __sanitizer_log_puts(
+    LogLevel level, const char *Message);
+
+EXTERN_C __attribute__((format(printf, 2, 3)))
+ATTR_ALIAS("__sanitizer_log_printf_impl") void __sanitizer_log_printf(
+    LogLevel Level, const char *Format, ...);
+
 static const char *LevelToStr(LogLevel Level) {
   switch (Level) {
   case LOG_ERROR:

@@ -8,7 +8,7 @@
 
 #define RECOVERABLE(fname, ...) SANITIZER_RECOVERABLE(ubsan, fname, __VA_ARGS__)
 
-RECOVERABLE(type_mismatch, TypeMismatchData *Data, ValuePtr Pointer)
+RECOVERABLE(type_mismatch_v1, TypeMismatchData *Data, ValuePtr Pointer)
 
 RECOVERABLE(alignment_assumption, AlignmentAssumptionData *Data,
             ValuePtr Pointer, ValuePtr Alignment, ValuePtr Offset)
@@ -23,7 +23,7 @@ RECOVERABLE(divrem_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 RECOVERABLE(shift_out_of_bounds, ShiftOutOfBoundsData *Data, ValuePtr Lhs,
             ValuePtr Rhs)
 
-RECOVERABLE(idx_out_of_bounds, OutOfBoundsData *Data, ValuePtr Index)
+RECOVERABLE(out_of_bounds, OutOfBoundsData *Data, ValuePtr Index)
 
 RECOVERABLE(vla_bound_not_positive, VLABoundData *Data, ValuePtr Bound)
 

@@ -2,6 +2,10 @@
 
 #include <sanitizer/platform.h>
 
+#if !(defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
+#error "Compiler not supported"
+#endif
+
 #define GET_RETURN_ADDR() __builtin_return_address(0)
 #define GET_CURRENT_FRAME() __builtin_frame_address(0)
 

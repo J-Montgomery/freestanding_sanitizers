@@ -1,8 +1,9 @@
+SRC_DIR=src
+
 CFLAGS+=-fPIC -ggdb3 -Wall -Wextra -pedantic -std=c99
 LDFLAGS+=-shared
-INC_DIR=-Iinclude
+INC_DIR=-Iinclude -I$(SRC_DIR)
 
-SRC_DIR=src
 COMMON_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/common))
 
 UBSAN_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/ubsan))
