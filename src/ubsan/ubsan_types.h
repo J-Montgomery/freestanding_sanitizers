@@ -7,10 +7,10 @@
 typedef sys_uptr ValuePtr;
 
 typedef struct {
-    SourceLocation Loc;
-    REFERENCE(const TypeDescriptor) Type;
-    unsigned char Alignment;
-    unsigned char TypeCheckKind;
+  SourceLocation Loc;
+  REFERENCE(const TypeDescriptor) Type;
+  unsigned char Alignment;
+  unsigned char TypeCheckKind;
 } TypeMismatchData;
 
 typedef struct {
@@ -59,7 +59,6 @@ typedef struct {
   unsigned char Kind; // ImplicitConversionKind
 } ImplicitConversionData;
 
-
 typedef struct {
   SourceLocation Loc;
   unsigned char Kind; // BuiltinCheckKind
@@ -86,7 +85,7 @@ typedef struct {
 } CFICheckFailData;
 
 typedef struct {
-    bool FromUnrecoverableLoc;
-    sys_uptr pc;
-    sys_uptr bp;
+  bool FromUnrecoverableLoc;
+  sys_uptr pc;
+  sys_uptr bp;
 } ReportOptions;

@@ -31,6 +31,9 @@ asan: output_dir libasan.so
 output_dir:
 	@mkdir -p $(OUT_DIR)
 
+format:
+	find . -iname *.h -o -iname *.c | xargs clang-format -i
+
 clean:
 	rm -f $(UBSAN_OBJ) $(ASAN_OBJ)
 	rm -rf $(OUT_DIR)
