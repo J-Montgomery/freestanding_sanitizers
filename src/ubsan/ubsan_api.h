@@ -17,7 +17,7 @@ RECOVERABLE(alignment_assumption, AlignmentAssumptionData *Data,
 RECOVERABLE(addition_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 RECOVERABLE(sub_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 RECOVERABLE(mul_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
-RECOVERABLE(negate_overflow, OverflowData *Data, ValuePtr OldVal)
+RECOVERABLE(negate_overflow, OverflowData *Data, ValuePtr Val)
 RECOVERABLE(divrem_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 
 RECOVERABLE(shift_out_of_bounds, ShiftOutOfBoundsData *Data, ValuePtr Lhs,
@@ -42,9 +42,6 @@ RECOVERABLE(nullability_arg, NonNullArgData *Data)
 
 RECOVERABLE(pointer_overflow, PointerOverflowData *Data, ValuePtr Base,
             ValuePtr Result)
-
-RECOVERABLE(cfi_check_fail, CFICheckFailData *Data, ValuePtr Function,
-            sys_uptr VtableIsValid)
 
 // Don't handle until the version compatibility issues are sorted
 // RECOVERABLE(float_cast_overflow, void *Data, ValuePtr From)

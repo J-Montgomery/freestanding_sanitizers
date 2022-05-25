@@ -15,6 +15,11 @@ available.
 
 
 ## Dependencies
-* stdbool.h
-* stdint.h
+* <stdbool.h>
+* <stdint.h>
+* <stdarg.h>
 * GCC or LLVM
+
+## Optional Dependencies
+* <stdio.h>
+* <stdlib.h>

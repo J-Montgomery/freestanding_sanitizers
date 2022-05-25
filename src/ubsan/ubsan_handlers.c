@@ -1,29 +1,82 @@
-#include "common/sanitizer_common.h"
-#include "ubsan_api.h"
 #include <sanitizer/compiler_internals.h>
 
+#include "common/sanitizer_common.h"
+#include "ubsan_api.h"
+
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleTypeMismatchImpl");
+  __sanitizer_log_puts(LOG_ERROR, "HandleTypeMismatchImpl\n");
 }
 
 static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
                                           ValuePtr Pointer, ValuePtr Alignment,
                                           ValuePtr Offset) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleAlignmentAssumptionImpl");
+  __sanitizer_log_puts(LOG_ERROR, "HandleAlignmentAssumptionImpl\n");
 }
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleIntegerOverflowImpl");
+  __sanitizer_log_printf(LOG_ERROR, "HandleIntegerOverflowImpl %s\n", Op);
 }
 
-static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr OldVal) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleNegationOverflowImpl");
+static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleNegationOverflowImpl\n");
 }
 
 static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                      ValuePtr RHS) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleDivremOverflowImpl");
+  __sanitizer_log_puts(LOG_ERROR, "HandleDivremOverflowImpl\n");
+}
+
+static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
+                                       ValuePtr RHS) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleShiftOutOfBoundsImpl\n");
+}
+
+static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleOutOfBoundsImpl\n");
+}
+
+static void HandleBuiltinUnreachableImpl(UnreachableData *Data) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleBuiltinUnreachableImpl\n");
+}
+
+static void HandleMissingReturnImpl(UnreachableData *Data) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleMissingReturnImpl\n");
+}
+
+static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleVLABoundNotPositive\n");
+}
+
+static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleFloatCastOverflow\n");
+}
+
+static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Vals) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleLoadInvalidValue\n");
+}
+
+static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
+                                     ValuePtr Dst) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleImplicitConversion\n");
+}
+
+static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleInvalidBuiltin\n");
+}
+
+static void HandleNonNullReturn(NonNullReturnData *Data, SourceLocation *LocPtr,
+                                bool IsAttr) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleNonNullReturn\n");
+}
+
+static void HandleNonNullArg(NonNullArgData *Data, bool IsAttr) {
+  __sanitizer_log_puts(LOG_ERROR, "HandleNonNullArg\n");
+}
+
+static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
+                                      ValuePtr Result) {
+  __sanitizer_log_puts(LOG_ERROR, "HandlePointerOverflowImpl\n");
 }
 
 /******************************************************************************
@@ -98,12 +151,12 @@ void __ubsan_handle_mul_overflow_abort(OverflowData *Data, ValuePtr LHS,
 
 /******************************************************************************/
 
-void __ubsan_handle_negate_overflow(OverflowData *Data, ValuePtr OldVal) {
-  HandleNegationOverflowImpl(Data, OldVal);
+void __ubsan_handle_negate_overflow(OverflowData *Data, ValuePtr Val) {
+  HandleNegationOverflowImpl(Data, Val);
 }
 
-void __ubsan_handle_negate_overflow_abort(OverflowData *Data, ValuePtr OldVal) {
-  HandleNegationOverflowImpl(Data, OldVal);
+void __ubsan_handle_negate_overflow_abort(OverflowData *Data, ValuePtr Val) {
+  HandleNegationOverflowImpl(Data, Val);
   Die();
 }
 
@@ -117,6 +170,161 @@ void __ubsan_handle_divrem_overflow(OverflowData *Data, ValuePtr LHS,
 void __ubsan_handle_divrem_overflow_abort(OverflowData *Data, ValuePtr LHS,
                                           ValuePtr RHS) {
   HandleDivremOverflowImpl(Data, LHS, RHS);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_shift_out_of_bounds(ShiftOutOfBoundsData *Data,
+                                        ValuePtr LHS, ValuePtr RHS) {
+  HandleShiftOutOfBoundsImpl(Data, LHS, RHS);
+}
+
+void __ubsan_handle_shift_out_of_bounds_abort(ShiftOutOfBoundsData *Data,
+                                              ValuePtr LHS, ValuePtr RHS) {
+  HandleShiftOutOfBoundsImpl(Data, LHS, RHS);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_out_of_bounds(OutOfBoundsData *Data, ValuePtr Index) {
+  HandleOutOfBoundsImpl(Data, Index);
+}
+
+void __ubsan_handle_out_of_bounds_abort(OutOfBoundsData *Data, ValuePtr Index) {
+  HandleOutOfBoundsImpl(Data, Index);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_vla_bound_not_positive(VLABoundData *Data, ValuePtr Bound) {
+  HandleVLABoundNotPositive(Data, Bound);
+}
+
+void __ubsan_handle_vla_bound_not_positive_abort(VLABoundData *Data,
+                                                 ValuePtr Bound) {
+  HandleVLABoundNotPositive(Data, Bound);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_float_cast_overflow(void *Data, ValuePtr From) {
+  HandleFloatCastOverflow(Data, From);
+}
+
+void __ubsan_handle_float_cast_overflow_abort(void *Data, ValuePtr From) {
+  HandleFloatCastOverflow(Data, From);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_load_invalid_value(InvalidValueData *Data, ValuePtr Val) {
+  HandleLoadInvalidValue(Data, Val);
+}
+
+void __ubsan_handle_load_invalid_value_abort(InvalidValueData *Data,
+                                             ValuePtr Val) {
+  HandleLoadInvalidValue(Data, Val);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_implicit_conversion(ImplicitConversionData *Data,
+                                        ValuePtr Src, ValuePtr Dst) {
+  HandleImplicitConversion(Data, Src, Dst);
+}
+
+void __ubsan_handle_implicit_conversion_abort(ImplicitConversionData *Data,
+                                              ValuePtr Src, ValuePtr Dst) {
+  HandleImplicitConversion(Data, Src, Dst);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_invalid_builtin(InvalidBuiltinData *Data) {
+  HandleInvalidBuiltin(Data);
+}
+
+void __ubsan_handle_invalid_builtin_abort(InvalidBuiltinData *Data) {
+  HandleInvalidBuiltin(Data);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_nonnull_return_v1(NonNullReturnData *Data,
+                                      SourceLocation *LocPtr) {
+  HandleNonNullReturn(Data, LocPtr, true);
+}
+
+void __ubsan_handle_nonnull_return_v1_abort(NonNullReturnData *Data,
+                                            SourceLocation *LocPtr) {
+  HandleNonNullReturn(Data, LocPtr, true);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_nullability_return_v1(NonNullReturnData *Data,
+                                          SourceLocation *LocPtr) {
+  HandleNonNullReturn(Data, LocPtr, false);
+}
+
+void __ubsan_handle_nullability_return_v1_abort(NonNullReturnData *Data,
+                                                SourceLocation *LocPtr) {
+  HandleNonNullReturn(Data, LocPtr, false);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_nonnull_arg(NonNullArgData *Data) {
+  HandleNonNullArg(Data, true);
+}
+
+void __ubsan_handle_nonnull_arg_abort(NonNullArgData *Data) {
+  HandleNonNullArg(Data, true);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_nullability_arg(NonNullArgData *Data) {
+  HandleNonNullArg(Data, false);
+}
+
+void __ubsan_handle_nullability_arg_abort(NonNullArgData *Data) {
+  HandleNonNullArg(Data, false);
+  Die();
+}
+
+/******************************************************************************/
+
+void __ubsan_handle_pointer_overflow(PointerOverflowData *Data, ValuePtr Base,
+                                     ValuePtr Result) {
+  HandlePointerOverflowImpl(Data, Base, Result);
+}
+
+void __ubsan_handle_pointer_overflow_abort(PointerOverflowData *Data,
+                                           ValuePtr Base, ValuePtr Result) {
+  HandlePointerOverflowImpl(Data, Base, Result);
+  Die();
+}
+/******************************************************************************/
+
+void __ubsan_handle_builtin_unreachable(UnreachableData *Data) {
+  HandleBuiltinUnreachableImpl(Data);
+  Die();
+}
+
+void __ubsan_handle_missing_return(UnreachableData *Data) {
+  HandleMissingReturnImpl(Data);
   Die();
 }
 
