@@ -30,8 +30,9 @@ libubsan.a: $(UBSAN_OBJ)
 
 ubsan: output_dir libubsan.a
 
+# $(CC) $(CFLAGS) $(ASAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
 libasan.a: $(ASAN_OBJ)
-	$(CC) $(CFLAGS) $(ASAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
+	ar rcs $(OUT_DIR)/$@ $^
 
 asan: output_dir libasan.a
 
