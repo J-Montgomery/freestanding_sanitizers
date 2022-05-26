@@ -25,7 +25,7 @@ static const char *LevelToStr(LogLevel Level) {
 
 EXTERN_C void __sanitizer_log_puts_impl(LogLevel Level, const char *Message) {
   fprintf(stderr, "%s", LevelToStr(Level));
-  puts(Message);
+  fprintf(stderr, "%s", Message);
 }
 
 EXTERN_C void __sanitizer_log_printf_impl(LogLevel Level, const char *Format,

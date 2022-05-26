@@ -17,7 +17,7 @@ ASAN_OBJ := $(patsubst %.c, %.o, $(ASAN_SRC))
 
 OUT_DIR=lib
 
-.PHONY: clean
+.PHONY: clean run_ubsan_tests
 
 all: ubsan asan
 
@@ -42,7 +42,7 @@ output_dir:
 format:
 	find . -iname *.h -o -iname *.c | xargs clang-format -i
 
-test: ubsan ubsan_test
+test: ubsan build_ubsan_tests run_ubsan_tests
 
 clean:
 	rm -f $(UBSAN_OBJ) $(ASAN_OBJ)

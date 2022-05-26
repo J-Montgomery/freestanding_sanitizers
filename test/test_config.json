@@ -1,0 +1,9 @@
+{
+    "addition_overflow": {
+        "output1": "^ErrorHandleIntegerOverflowImpl.+"
+    },
+
+    "shift_overflow": {
+        "output1": "^ErrorHandleShiftOutOfBoundsImpl.*"
+    }
+}

@@ -2,9 +2,9 @@
 #include <stdio.h>
 
 int main() {
-    int64_t a = INT64_MAX;
+    int64_t a = 0x1001;
 
-    a += 1;
+    a <<= 65;
     printf("Test %lu\n", a);
 
     return 0;

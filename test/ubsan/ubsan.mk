@@ -8,5 +8,7 @@ UBSAN_TESTS := $(patsubst %.c, %, $(TEST_SRC))
 %: %.c
 	LIBRARY_PATH=./lib $(CC) $(TEST_CFLAGS) $(TEST_LDFLAGS) $< -o $@
 
-ubsan_test: $(UBSAN_TESTS)
-	echo '$(UBSAN_TESTS)' '$(TEST_SRC)'
+build_ubsan_tests: $(UBSAN_TESTS)
+
+run_ubsan_tests: $(UBSAN_TESTS)
+	python3 test/test_runner.py -c test/test_config.json $(UBSAN_TESTS)
