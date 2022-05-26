@@ -15,17 +15,17 @@ def run_test(config, test):
         log.debug(f'{test_case} -> {config[test_case]}')
         test_regexes.append(re.compile(config[test_case]))
 
-    log.info(f'running test {test}')
+    log.info(f'running {test}')
     output = subprocess.run(test, capture_output=True, text=True)
     log.debug(f'{test} output: [{output}]')
 
     for line in output.stderr.splitlines():
         regex = test_regexes.pop()
         if not regex.match(line):
-            log.error(f'\tTest {test} failed')
+            log.error(f'\t{test} failed')
             log.error(f'\t\t{regex} does not match \'{line}\'')
             sys.exit(1)
-    log.info(f'\tTest {test} passed!')
+    log.info(f'\t{test} passed!')
 
 def init_stdout_logger():
     loglevel = logging.INFO

@@ -19,7 +19,14 @@ available.
 * <stdint.h>
 * <stdarg.h>
 * GCC or LLVM
+* Make
+* Python3 (Optional)
+  * Used to run and validate test cases.
 
-## Optional Dependencies
+## Optional Runtime Dependencies
 * <stdio.h>
+  * Used in the default logging module. Can be omitted by defining a custom function.
 * <stdlib.h>
+  * Used in the default termination module. Can be omitted by defining a custom function.
+
+## Dev Dependencies
