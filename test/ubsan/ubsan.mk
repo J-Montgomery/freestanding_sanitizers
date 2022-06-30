@@ -1,5 +1,5 @@
 TEST_CFLAGS=-ggdb3 -Wall -Wextra -pedantic -std=c99 -fsanitize=undefined
-TEST_LDFLAGS=-fsanitize=undefined -Wl,-Llib -Wl,-l:libubsan.so.1
+TEST_LDFLAGS=-fsanitize=undefined -rdynamic -Wl,-Llib -Wl,-l:libubsan.so.1
 
 SRC_DIR = test/ubsan
 TEST_SRC += $(wildcard $(SRC_DIR)/*.c)

@@ -16,6 +16,7 @@ static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
   __sanitizer_log_printf(LOG_ERROR, "HandleIntegerOverflowImpl %s\n", Op);
+  __sanitizer_print_backtrace();
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
@@ -290,17 +291,6 @@ void __ubsan_handle_nonnull_arg(NonNullArgData *Data) {
 
 void __ubsan_handle_nonnull_arg_abort(NonNullArgData *Data) {
   HandleNonNullArg(Data, true);
-  Die();
-}
-
-/******************************************************************************/
-
-void __ubsan_handle_nullability_arg(NonNullArgData *Data) {
-  HandleNonNullArg(Data, false);
-}
-
-void __ubsan_handle_nullability_arg_abort(NonNullArgData *Data) {
-  HandleNonNullArg(Data, false);
   Die();
 }
 
