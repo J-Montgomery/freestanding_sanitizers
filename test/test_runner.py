@@ -14,6 +14,7 @@ def run_test(config, test):
     for test_case in config:
         log.debug(f'{test_case} -> {config[test_case]}')
         test_regexes.append(re.compile(config[test_case]))
+    test_regexes = test_regexes.reverse()
 
     log.info(f'running {test}')
     output = subprocess.run(test, capture_output=True, text=True)
@@ -25,7 +26,7 @@ def run_test(config, test):
     log.info(f'\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}')
 
     for line in stderr_log:
-        if len(test_regexes) <= 0:
+        if test_regexes is None:
             break
         regex = test_regexes.pop()
         if not regex.match(line):

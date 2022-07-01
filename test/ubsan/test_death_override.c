@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 void __attribute__((noreturn)) Die(void) {
-    printf("Dying in a custom function\n");
+    fprintf(stderr, "Custom Death Message\n");
     exit(1);
 }
 

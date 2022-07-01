@@ -7,7 +7,8 @@
         "output1": "^Error: HandleShiftOutOfBoundsImpl.*"
     },
 
-    "custom_overrides": {
-        "output1": "^Error: HandleTypeMismatchImpl.*"
+    "test_death_override": {
+        "output1": "^Error: HandleTypeMismatchImpl.*",
+        "output2": "^Custom Death Message$"
     }
 }
