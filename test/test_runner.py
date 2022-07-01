@@ -20,16 +20,17 @@ def run_test(config, test):
     log.debug(f'{test} output: [{output}]')
 
     stderr_log = output.stderr.splitlines()
+    out_log = "".join(output.stdout)
+    err_log = "".join(output.stderr)
+    log.info(f'\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}')
+
     for line in stderr_log:
         if len(test_regexes) <= 0:
             break
         regex = test_regexes.pop()
         if not regex.match(line):
-            out_log = "\n".join(output.stdout.splitlines())
-            err_log = "\n".join(stderr_log)
             log.error(f'\t{test} failed')
             log.error(f'\t\t{regex} does not match \'{line}\'')
-            log.error(f'\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}')
             sys.exit(1)
     log.info(f'\t{test} passed!')
 

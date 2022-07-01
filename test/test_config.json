@@ -8,6 +8,6 @@
     },
 
     "custom_overrides": {
-        "output1": "^Error: HandleShiftOutOfBoundsImpl.*"
+        "output1": "^Error: HandleTypeMismatchImpl.*"
     }
 }
