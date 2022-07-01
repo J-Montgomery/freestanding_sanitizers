@@ -3,22 +3,43 @@
 #include "common/sanitizer_common.h"
 #include "ubsan_api.h"
 
+
+const char *TypeCheckKinds[] = {
+    "load of", "store to", "reference binding to", "member access within",
+    "member call on", "constructor call on", "downcast of", "downcast of",
+    "upcast of", "cast to virtual base of", "_Nonnull binding to",
+    "dynamic operation on"};
+
+#define EmitError(Loc, ...) \
+  if (LocIsValid(Loc)) { \
+    __sanitizer_log_printf(LOG_SILENT, "Loc %s:%u:%u: ", (Loc)->Filename, \
+                           (Loc)->Line, (Loc)->Column); \
+  } else { \
+    __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: "); \
+  } \
+  __sanitizer_log_printf(LOG_SILENT, __VA_ARGS__)
+
+
 static bool LocIsValid(SourceLocation *Loc) {
   return (Loc->Filename != 0) && (Loc->Column != 0);
 }
 
-static void EmitError(SourceLocation *Loc, const char *string) {
-  if (LocIsValid(Loc)) {
-
-    __sanitizer_log_printf(LOG_SILENT, "Loc %s:%u:%u: %s\n", Loc->Filename,
-                           Loc->Line, Loc->Column, string);
-
-  } else {
-    __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: %s\n", string);
-  }
-}
-
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
+  ValuePtr alignment = (ValuePtr)1 << Data->Alignment;
+
+  enum UB_Type err = Err_Unknown;
+
+  if(__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  if(!Pointer) {
+    err = Err_NullPtrUse;
+    EmitError(&Data->Loc, "%s null pointer of type %s\n", TypeCheckKinds[Data->Kind], Data->Type);
+  } else if (Pointer & (alignment - 1)) {
+    err = Err_MisalignedPtrUse;
+  } else {
+    err = Err_InsufficientObjSize;
+  }
   EmitError(&Data->Loc, "HandleTypeMismatchImpl");
 }
 
@@ -66,7 +87,7 @@ static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
 
 static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
   // TODO HandleFloatCastOverflow
-  EmitError(0, "HandleFloatCastOverflow");
+  //EmitError(0, "HandleFloatCastOverflow");
 }
 
 static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Vals) {

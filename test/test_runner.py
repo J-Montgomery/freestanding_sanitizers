@@ -18,7 +18,7 @@ def run_test(config, test):
     test_regexes = test_regexes.reverse()
 
     log.info(f"running {test}")
-    output = subprocess.run(test, capture_output=True, text=True)
+    output = subprocess.run(test, capture_output=True)
     log.info(f"{test} output: [{output}]")
 
     stderr_log = output.stderr.splitlines()
