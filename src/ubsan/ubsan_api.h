@@ -48,3 +48,35 @@ RECOVERABLE(pointer_overflow, PointerOverflowData *Data, ValuePtr Base,
 
 UNRECOVERABLE(builtin_unreachable, UnreachableData *Data)
 UNRECOVERABLE(missing_return, UnreachableData *Data)
+
+typedef enum UB_Type {
+  Err_Unknown,
+  Err_NullPtrUse,
+  Err_NullPtrWithOffset,
+  Err_NullPtrWithNonZeroOffset,
+  Err_NullPtrAfterNonZeroOffset,
+  Err_PointerOverflowData,
+  Err_MisalignedPtrUse,
+  Err_AlignmentAssumption,
+  Err_InsufficientObjSize,
+  Err_SignedIntegerOverflow,
+  Err_UnsignedIntegerOverflow,
+  Err_IntegerDivByZero,
+  Err_InvalidBuiltin,
+  Err_ImplicitUnsignedIntegerTruncation,
+  Err_ImplicitSignedIntegerTruncation,
+  Err_ImplicitIntegerSignChange,
+  Err_ImplicitSignedIntegerTruncationOrSignChange,
+  Err_InvalidShiftBase,
+  Err_InvalidShiftExponent,
+  Err_IndexOutOfBounds,
+  Err_UnreachableCall,
+  Err_MissingReturn,
+  Err_NonPositiveVlaIndex,
+  Err_FloatCastOverflow,
+  Err_InvalidBoolLoad,
+  Err_InvalidEnumLoad,
+  Err_FunctionTypeMismatch,
+  Err_InvalidNullReturn,
+  Err_InvalidNullArgument
+} UB_Type;

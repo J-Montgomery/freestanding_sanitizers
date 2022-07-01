@@ -18,13 +18,13 @@ def run_test(config, test):
     test_regexes = test_regexes.reverse()
 
     log.info(f"running {test}")
-    output = subprocess.run(test, capture_output=True, text=True)
-    log.info(f"{test} output: [{output}]")
+    output = subprocess.run(test, capture_output=True)
+    log.debug(f"{test} output: [{output}]")
 
     stderr_log = output.stderr.splitlines()
-    out_log = "".join(output.stdout)
-    err_log = "".join(output.stderr)
-    log.info(f"\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}")
+    out_log = b''.join(output.stdout.splitlines())
+    err_log = b''.join(output.stderr.splitlines())
+    log.debug(f"\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}")
 
     for line in stderr_log:
         if test_regexes is None:

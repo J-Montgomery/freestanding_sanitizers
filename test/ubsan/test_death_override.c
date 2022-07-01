@@ -3,6 +3,7 @@
 
 void __attribute__((noreturn)) Die(void) {
   fprintf(stderr, "Custom Death Message\n");
+  printf("Test Successful");
   exit(1);
 }
 
