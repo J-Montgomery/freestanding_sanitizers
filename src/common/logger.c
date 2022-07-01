@@ -31,7 +31,7 @@ EXTERN_C int __sanitizer_log_puts_impl(LogLevel Level, const char *Message) {
 }
 
 EXTERN_C int __sanitizer_log_printf_impl(LogLevel Level, const char *Format,
-                                          ...) {
+                                         ...) {
   int bytes;
   va_list Args;
   va_start(Args, Format);
