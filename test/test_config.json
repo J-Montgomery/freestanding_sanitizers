@@ -1,9 +1,14 @@
 {
     "addition_overflow": {
-        "output1": "^ErrorHandleIntegerOverflowImpl.+"
+        "output1": "^Error: HandleIntegerOverflowImpl.*"
     },
 
     "shift_overflow": {
-        "output1": "^ErrorHandleShiftOutOfBoundsImpl.*"
+        "output1": "^Error: HandleShiftOutOfBoundsImpl.*"
+    },
+
+    "test_death_override": {
+        "output1": "^Error: HandleTypeMismatchImpl.*",
+        "output2": "^Custom Death Message$"
     }
 }

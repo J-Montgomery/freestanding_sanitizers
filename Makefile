@@ -2,7 +2,7 @@ include test/ubsan/ubsan.mk
 SRC_DIR=src
 
 CFLAGS+=-fPIC -ggdb3 -Wall -Wextra -pedantic -std=c99
-LDFLAGS+=-static
+LDFLAGS+=-shared -rdynamic
 INC_DIR=-Iinclude -I$(SRC_DIR)
 
 COMMON_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/common))
@@ -24,11 +24,12 @@ all: ubsan asan
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC_DIR) -c $< -o $@
 
-# $(CC) $(CFLAGS) $(UBSAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
-libubsan.a: $(UBSAN_OBJ)
-	ar rcs $(OUT_DIR)/$@ $^
+libubsan.so.1: $(UBSAN_OBJ)
+	$(CC) $(CFLAGS) $(UBSAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
+#libubsan.a: $(UBSAN_OBJ)
+#	ar rcs $(OUT_DIR)/$@ $^
 
-ubsan: output_dir libubsan.a
+ubsan: output_dir libubsan.so.1
 
 # $(CC) $(CFLAGS) $(ASAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
 libasan.a: $(ASAN_OBJ)

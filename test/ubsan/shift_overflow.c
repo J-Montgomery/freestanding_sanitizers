@@ -2,10 +2,10 @@
 #include <stdio.h>
 
 int main() {
-    int64_t a = 0x1001;
+  int64_t a = 0x1001;
 
-    a <<= 65;
-    printf("Test %lu\n", a);
+  a <<= 65;
+  printf("Test %lu\n", a);
 
-    return 0;
+  return 0;
 }

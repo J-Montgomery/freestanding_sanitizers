@@ -4,6 +4,7 @@
 #define ATTR_WEAK __attribute__((weak))
 #define ATTR_NORETURN __attribute__((noreturn))
 #define ATTR_ALIAS(x) __attribute__((weak, alias(x)))
+#define ATTR_CONSTRUCTOR __attribute__((constructor))
 
 #ifdef __cplusplus
 #define EXTERN_C extern "C"
