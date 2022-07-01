@@ -19,7 +19,7 @@ def run_test(config, test):
 
     log.info(f"running {test}")
     output = subprocess.run(test, capture_output=True, text=True)
-    log.debug(f"{test} output: [{output}]")
+    log.info(f"{test} output: [{output}]")
 
     stderr_log = output.stderr.splitlines()
     out_log = "".join(output.stdout)

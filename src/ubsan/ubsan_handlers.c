@@ -3,81 +3,97 @@
 #include "common/sanitizer_common.h"
 #include "ubsan_api.h"
 
+static bool LocIsValid(SourceLocation *Loc) {
+  return (Loc->Filename != 0) && (Loc->Column != 0);
+}
+
+static void EmitError(SourceLocation *Loc, const char *string) {
+  if (LocIsValid(Loc)) {
+
+    __sanitizer_log_printf(LOG_SILENT, "Loc %s:%u:%u: %s\n", Loc->Filename,
+                           Loc->Line, Loc->Column, string);
+
+  } else {
+    __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: %s\n", string);
+  }
+}
+
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleTypeMismatchImpl\n");
+  EmitError(&Data->Loc, "HandleTypeMismatchImpl");
 }
 
 static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
                                           ValuePtr Pointer, ValuePtr Alignment,
                                           ValuePtr Offset) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleAlignmentAssumptionImpl\n");
+  EmitError(&Data->Loc, "HandleAlignmentAssumptionImpl");
 }
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
-  __sanitizer_log_printf(LOG_ERROR, "HandleIntegerOverflowImpl %s\n", Op);
+  EmitError(&Data->Loc, "HandleIntegerOverflowImpl");
   __sanitizer_print_backtrace();
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleNegationOverflowImpl\n");
+  EmitError(&Data->Loc, "HandleNegationOverflowImpl");
 }
 
 static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                      ValuePtr RHS) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleDivremOverflowImpl\n");
+  EmitError(&Data->Loc, "HandleDivremOverflowImpl");
 }
 
 static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
                                        ValuePtr RHS) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleShiftOutOfBoundsImpl\n");
+  EmitError(&Data->Loc, "HandleShiftOutOfBoundsImpl");
 }
 
 static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleOutOfBoundsImpl\n");
+  EmitError(&Data->Loc, "HandleOutOfBoundsImpl");
 }
 
 static void HandleBuiltinUnreachableImpl(UnreachableData *Data) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleBuiltinUnreachableImpl\n");
+  EmitError(&Data->Loc, "HandleBuiltinUnreachableImpl");
 }
 
 static void HandleMissingReturnImpl(UnreachableData *Data) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleMissingReturnImpl\n");
+  EmitError(&Data->Loc, "HandleMissingReturnImpl");
 }
 
 static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleVLABoundNotPositive\n");
+  EmitError(&Data->Loc, "HandleVLABoundNotPositive");
 }
 
 static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleFloatCastOverflow\n");
+  // TODO HandleFloatCastOverflow
+  EmitError(0, "HandleFloatCastOverflow");
 }
 
 static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Vals) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleLoadInvalidValue\n");
+  EmitError(&Data->Loc, "HandleLoadInvalidValue");
 }
 
 static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
                                      ValuePtr Dst) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleImplicitConversion\n");
+  EmitError(&Data->Loc, "HandleImplicitConversion");
 }
 
 static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleInvalidBuiltin\n");
+  EmitError(&Data->Loc, "HandleInvalidBuiltin");
 }
 
 static void HandleNonNullReturn(NonNullReturnData *Data, SourceLocation *LocPtr,
                                 bool IsAttr) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleNonNullReturn\n");
+  EmitError(LocPtr, "HandleNonNullReturn");
 }
 
 static void HandleNonNullArg(NonNullArgData *Data, bool IsAttr) {
-  __sanitizer_log_puts(LOG_ERROR, "HandleNonNullArg\n");
+  EmitError(&Data->Loc, "HandleNonNullArg");
 }
 
 static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
                                       ValuePtr Result) {
-  __sanitizer_log_puts(LOG_ERROR, "HandlePointerOverflowImpl\n");
+  EmitError(&Data->Loc, "HandlePointerOverflowImpl");
 }
 
 /******************************************************************************
