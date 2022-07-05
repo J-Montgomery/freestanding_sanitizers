@@ -37,8 +37,7 @@ def run_test(config, test):
     log.info(f"\t{test} passed!")
 
 
-def init_stdout_logger():
-    loglevel = logging.INFO
+def init_stdout_logger(loglevel=logging.INFO):
     root = logging.getLogger()
     root.setLevel(loglevel)
     handler = logging.StreamHandler(sys.stdout)
@@ -52,11 +51,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", default="test_config.json", required=True)
     parser.add_argument("-t", "--test", action="append", help="Run test executable")
+    parser.add_argument('--verbose', action='store_true')
     parser.add_argument("test_list", nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
 
-    init_stdout_logger()
+    if args.verbose:
+        init_stdout_logger(logging.DEBUG)
+    else:
+        init_stdout_logger()
 
     with open(args.config) as conf:
         config = json.load(conf)

@@ -18,4 +18,4 @@ $(ABORT_UBSAN_TESTS):
 build_ubsan_tests: $(UBSAN_TESTS) $(ABORT_UBSAN_TESTS)
 
 run_ubsan_tests: $(UBSAN_TESTS) $(ABORT_UBSAN_TESTS)
-	LD_LIBRARY_PATH=./lib python3 test/test_runner.py -c test/test_config.json $(UBSAN_TESTS) $(ABORT_UBSAN_TESTS)
+	LD_LIBRARY_PATH=./lib python3 test/test_runner.py --verbose -c test/test_config.json $(UBSAN_TESTS) $(ABORT_UBSAN_TESTS)
