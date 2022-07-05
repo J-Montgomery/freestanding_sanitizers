@@ -11,30 +11,36 @@ log = logging.getLogger("TestRunner")
 
 
 def run_test(config, test):
+    print(f'-----------------------------------------------\n')
     test_regexes = []
     for test_case in config:
-        log.debug(f"{test_case} -> {config[test_case]}")
+        log.debug(f"Found test for {test_case}: {config[test_case]}")
         test_regexes.append(re.compile(config[test_case]))
-    test_regexes = test_regexes.reverse()
 
-    log.info(f"running {test}")
+    test_regexes.reverse()
+
+    log.info(f"running {test} {test_regexes}")
     output = subprocess.run(test, capture_output=True)
     log.debug(f"{test} output: [{output}]")
 
     stderr_log = output.stderr.splitlines()
-    out_log = b''.join(output.stdout.splitlines())
-    err_log = b''.join(output.stderr.splitlines())
+    out_log = b'\n'.join(output.stdout.splitlines())
+    err_log = b'\n'.join(output.stderr.splitlines())
     log.debug(f"\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}")
 
     for line in stderr_log:
         if test_regexes is None:
+            print("skipping")
             break
+
         regex = test_regexes.pop()
-        if not regex.match(line):
+        if not regex.search(line.decode('ascii')):
             log.error(f"\t{test} failed")
             log.error(f"\t\t{regex} does not match '{line}'")
+            print(f'-------------------------------------------------------\n\n')
             sys.exit(1)
     log.info(f"\t{test} passed!")
+    print(f'-------------------------------------------------------\n\n')
 
 
 def init_stdout_logger(loglevel=logging.INFO):

@@ -1,14 +1,14 @@
 {
     "addition_overflow": {
-        "output1": "^Error: HandleIntegerOverflowImpl.*"
+        "output1": "HandleIntegerOverflowImpl"
     },
 
     "shift_overflow": {
-        "output1": "^Error: HandleShiftOutOfBoundsImpl.*"
+        "output1": "HandleShiftOutOfBoundsImpl"
     },
 
     "test_death_override": {
-        "output1": "^Error: HandleTypeMismatchImpl.*",
+        "output1": "store to null pointer",
         "output2": "^Custom Death Message$"
     }
 }

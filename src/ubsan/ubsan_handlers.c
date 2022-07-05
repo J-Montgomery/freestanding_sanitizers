@@ -1,6 +1,7 @@
 #include <sanitizer/compiler_internals.h>
 
 #include "common/sanitizer_common.h"
+#include "common/backtrace.h"
 #include "ubsan_api.h"
 
 
@@ -12,13 +13,17 @@ const char *TypeCheckKinds[] = {
 
 #define EmitError(Loc, ...) \
   if (LocIsValid(Loc)) { \
-    __sanitizer_log_printf(LOG_SILENT, "Loc %s:%u:%u: ", (Loc)->Filename, \
+    __sanitizer_log_printf(LOG_SILENT, "%s:%u:%u: ", (Loc)->Filename, \
                            (Loc)->Line, (Loc)->Column); \
   } else { \
     __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: "); \
   } \
   __sanitizer_log_printf(LOG_SILENT, __VA_ARGS__)
 
+
+// static void ATTR_CONSTRUCTOR SetUbsanOptions(void) {
+//   __sanitizer_enable_backtrace(false);
+// }
 
 static bool LocIsValid(SourceLocation *Loc) {
   return (Loc->Filename != 0) && (Loc->Column != 0);
@@ -29,18 +34,17 @@ static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
 
   enum UB_Type err = Err_Unknown;
 
-  if(__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
-
+  // TODO: Make use of Data->Type to provide type info
   if(!Pointer) {
     err = Err_NullPtrUse;
-    EmitError(&Data->Loc, "%s null pointer of type %s\n", TypeCheckKinds[Data->Kind], Data->Type);
+    EmitError(&Data->Loc, "%s null pointer\n", TypeCheckKinds[Data->Kind]);
   } else if (Pointer & (alignment - 1)) {
     err = Err_MisalignedPtrUse;
+    EmitError(&Data->Loc, "%s misaligned address %p which requires %li byte alignment\n", TypeCheckKinds[Data->Kind], (void *)Pointer, alignment);
   } else {
     err = Err_InsufficientObjSize;
+    EmitError(&Data->Loc, "%s address %p with insufficient space\n", TypeCheckKinds[Data->Kind], (void *)Pointer);
   }
-  EmitError(&Data->Loc, "HandleTypeMismatchImpl");
 }
 
 static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
@@ -51,8 +55,10 @@ static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
+  if(__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
   EmitError(&Data->Loc, "HandleIntegerOverflowImpl");
-  __sanitizer_print_backtrace();
+
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
