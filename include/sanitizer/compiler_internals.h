@@ -29,6 +29,14 @@ TK_Kind getTypeKind(const TypeDescriptor desc) {
 
 char *getTypeName(const TypeDescriptor *desc) { return (char *)desc->TypeName; }
 
+int getIntegerBitWidth(const TypeDescriptor desc) {
+  return 1 << (desc.TypeInfo >> 1);
+}
+
+int getFloatBitWidth(const TypeDescriptor desc) {
+  return desc.TypeInfo;
+}
+
 bool isIntegerType(const TypeDescriptor desc) {
   return getTypeKind(desc) == TK_Integer;
 }
@@ -43,4 +51,36 @@ bool isSignedIntegerType(const TypeDescriptor desc) {
 
 bool isUnsignedIntegerType(const TypeDescriptor desc) {
   return isIntegerType(desc) && !(desc.TypeInfo & 1);
+}
+
+bool isInlineInt(const TypeDescriptor desc) {
+  const unsigned InlineSize = sizeof(ValuePtr) * 8;
+  const unsigned TypeWidth = getIntegerBitWidth(desc);
+  return TypeWidth < InlineSize;
+}
+
+bool isInlineFloat(const TypeDescriptor desc) {
+  const unsigned InlineSize = sizeof(ValuePtr) * 8;
+  const unsigned TypeWidth = getFloatBitWidth(desc);
+  return TypeWidth < InlineSize;
+}
+
+
+uintmax_t getUIntValue(const TypeDescriptor desc, ValuePtr val) {
+  // TODO: handle isUnsignedIntegerType(desc) == false
+
+  if(isInlineInt(desc)) {
+    const unsigned offset = sizeof(intmax_t) * 8 - getIntegerBitWidth(desc);
+    return ((intmax_t)val << offset) >> offset;
+  }
+  else // let the compiler zero-extend the value
+    return *(intmax_t *)val;
+}
+
+intmax_t getSIntValue(const TypeDescriptor desc, ValuePtr val) {
+  if(isInlineInt(desc))
+    return val;
+  else
+    return *(uintmax_t *)val;
+
 }

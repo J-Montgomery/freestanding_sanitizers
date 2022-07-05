@@ -4,8 +4,6 @@
 #include <sanitizer/interface_utils.h>
 #include <sanitizer/platform.h>
 
-typedef sys_uptr ValuePtr;
-
 typedef struct {
   SourceLocation Loc;
   REFERENCE(const TypeDescriptor) Type;

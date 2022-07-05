@@ -37,21 +37,16 @@ static bool LocIsValid(SourceLocation *Loc) {
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
   ValuePtr alignment = (ValuePtr)1 << Data->Alignment;
 
-  enum UB_Type err = Err_Unknown;
-
   if (!Pointer) {
-    err = Err_NullPtrUse;
     EmitError(&Data->Loc, "%s null pointer of type %s\n",
               TypeCheckKinds[Data->Kind], getTypeName(Data->Type));
   } else if (Pointer & (alignment - 1)) {
-    err = Err_MisalignedPtrUse;
     EmitError(&Data->Loc,
               "%s misaligned address %p for type %s which requires %li byte "
               "alignment\n",
               TypeCheckKinds[Data->Kind], (void *)Pointer,
               getTypeName(Data->Type), alignment);
   } else {
-    err = Err_InsufficientObjSize;
     EmitError(
         &Data->Loc,
         "%s address %p with insufficient space for an object of type %s\n",
@@ -67,9 +62,20 @@ static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
+  //bool isSigned = isSignedIntegerType(*Data->Type);
+  
   if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
-  EmitError(&Data->Loc, "HandleIntegerOverflowImpl");
+
+  EmitError(&Data->Loc, "Test Overflow\n");
+  // if(isSigned) {
+  //   EmitError(&Data->Loc, "signed integer overflow: %li %s %li cannot be represented in type %s",
+  // getSIntValue(*Data->Type, LHS), Op, RHS, getTypeName(Data->Type));
+  // } else {
+  //   EmitError(&Data->Loc, "unsigned integer overflow: %lu %s %lu cannot be represented in type %s",
+  // getUIntValue(*Data->Type, LHS), Op, RHS, getTypeName(Data->Type));
+  // }
+  EmitError(&Data->Loc, "Test Overflow2\n");
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
