@@ -43,7 +43,7 @@ def run_test(config, test):
     print(f'-------------------------------------------------------\n\n')
 
 
-def init_stdout_logger(loglevel=logging.DEBUG):
+def init_stdout_logger(loglevel=logging.INFO):
     root = logging.getLogger()
     root.setLevel(loglevel)
     handler = logging.StreamHandler(sys.stdout)

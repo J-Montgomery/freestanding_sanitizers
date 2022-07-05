@@ -1,49 +1,61 @@
 #include <sanitizer/compiler_internals.h>
 
-#include "common/sanitizer_common.h"
 #include "common/backtrace.h"
+#include "common/sanitizer_common.h"
 #include "ubsan_api.h"
 
+const char *TypeCheckKinds[] = {"load of",
+                                "store to",
+                                "reference binding to",
+                                "member access within",
+                                "member call on",
+                                "constructor call on",
+                                "downcast of",
+                                "downcast of",
+                                "upcast of",
+                                "cast to virtual base of",
+                                "_Nonnull binding to",
+                                "dynamic operation on"};
 
-const char *TypeCheckKinds[] = {
-    "load of", "store to", "reference binding to", "member access within",
-    "member call on", "constructor call on", "downcast of", "downcast of",
-    "upcast of", "cast to virtual base of", "_Nonnull binding to",
-    "dynamic operation on"};
-
-#define EmitError(Loc, ...) \
-  if (LocIsValid(Loc)) { \
-    __sanitizer_log_printf(LOG_SILENT, "%s:%u:%u: ", (Loc)->Filename, \
-                           (Loc)->Line, (Loc)->Column); \
-  } else { \
-    __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: "); \
-  } \
+#define EmitError(Loc, ...)                                                    \
+  if (LocIsValid(Loc)) {                                                       \
+    __sanitizer_log_printf(LOG_SILENT, "%s:%u:%u: ", (Loc)->Filename,          \
+                           (Loc)->Line, (Loc)->Column);                        \
+  } else {                                                                     \
+    __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: ");                   \
+  }                                                                            \
   __sanitizer_log_printf(LOG_SILENT, __VA_ARGS__)
-
-
 
 static bool LocIsValid(SourceLocation *Loc) {
   return (Loc->Filename != 0) && (Loc->Column != 0);
 }
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter -Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
   ValuePtr alignment = (ValuePtr)1 << Data->Alignment;
 
   enum UB_Type err = Err_Unknown;
 
-  // TODO: Make use of Data->Type to provide type info
-  if(!Pointer) {
+  if (!Pointer) {
     err = Err_NullPtrUse;
-    EmitError(&Data->Loc, "%s null pointer of type %s\n", TypeCheckKinds[Data->Kind], getTypeName(*(Data->Type)));
+    EmitError(&Data->Loc, "%s null pointer of type %s\n",
+              TypeCheckKinds[Data->Kind], getTypeName(Data->Type));
   } else if (Pointer & (alignment - 1)) {
     err = Err_MisalignedPtrUse;
-    EmitError(&Data->Loc, "%s misaligned address %p which requires %li byte alignment\n", TypeCheckKinds[Data->Kind], (void *)Pointer, alignment);
+    EmitError(&Data->Loc,
+              "%s misaligned address %p for type %s which requires %li byte "
+              "alignment\n",
+              TypeCheckKinds[Data->Kind], (void *)Pointer,
+              getTypeName(Data->Type), alignment);
   } else {
     err = Err_InsufficientObjSize;
-    EmitError(&Data->Loc, "%s address %p with insufficient space\n", TypeCheckKinds[Data->Kind], (void *)Pointer);
+    EmitError(
+        &Data->Loc,
+        "%s address %p with insufficient space for an object of type %s\n",
+        TypeCheckKinds[Data->Kind], (void *)Pointer, getTypeName(Data->Type));
   }
 }
 
@@ -55,11 +67,9 @@ static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
-  //bool isSigned = Data->Type.is
-  if(__sanitizer_backtrace_enabled())
+  if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
   EmitError(&Data->Loc, "HandleIntegerOverflowImpl");
-
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
@@ -94,7 +104,7 @@ static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
 
 static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
   // TODO HandleFloatCastOverflow
-  //EmitError(0, "HandleFloatCastOverflow");
+  // EmitError(0, "HandleFloatCastOverflow");
 }
 
 static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Vals) {
