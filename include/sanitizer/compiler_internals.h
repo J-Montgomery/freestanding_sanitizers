@@ -22,3 +22,27 @@ typedef struct {
 } TypeDescriptor;
 
 typedef enum { TK_Integer = 0x0, TK_Float = 0x1, TK_Unknown = 0xffff } TK_Kind;
+
+TK_Kind getTypeKind(TypeDescriptor desc) {
+  return (TK_Kind)desc.TypeKind;
+}
+
+char *getTypeName(TypeDescriptor desc) {
+  return (char *)desc.TypeName;
+}
+
+bool isIntegerType(TypeDescriptor desc) {
+  return getTypeKind(desc) == TK_Integer;
+}
+
+bool isFloatType(TypeDescriptor desc) {
+  return getTypeKind(desc) == TK_Float;
+}
+
+bool isSignedIntegerType(TypeDescriptor desc) {
+  return isIntegerType(desc) && (desc.TypeInfo & 1);
+}
+
+bool isUnsignedIntegerType(TypeDescriptor desc) {
+  return isIntegerType(desc) && !(desc.TypeInfo & 1);
+}

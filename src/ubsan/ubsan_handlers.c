@@ -21,13 +21,13 @@ const char *TypeCheckKinds[] = {
   __sanitizer_log_printf(LOG_SILENT, __VA_ARGS__)
 
 
-// static void ATTR_CONSTRUCTOR SetUbsanOptions(void) {
-//   __sanitizer_enable_backtrace(false);
-// }
 
 static bool LocIsValid(SourceLocation *Loc) {
   return (Loc->Filename != 0) && (Loc->Column != 0);
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter -Wunused-but-set-variable"
 
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
   ValuePtr alignment = (ValuePtr)1 << Data->Alignment;
@@ -37,7 +37,7 @@ static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
   // TODO: Make use of Data->Type to provide type info
   if(!Pointer) {
     err = Err_NullPtrUse;
-    EmitError(&Data->Loc, "%s null pointer\n", TypeCheckKinds[Data->Kind]);
+    EmitError(&Data->Loc, "%s null pointer of type %s\n", TypeCheckKinds[Data->Kind], getTypeName(*(Data->Type)));
   } else if (Pointer & (alignment - 1)) {
     err = Err_MisalignedPtrUse;
     EmitError(&Data->Loc, "%s misaligned address %p which requires %li byte alignment\n", TypeCheckKinds[Data->Kind], (void *)Pointer, alignment);
@@ -55,6 +55,7 @@ static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
+  //bool isSigned = Data->Type.is
   if(__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
   EmitError(&Data->Loc, "HandleIntegerOverflowImpl");
@@ -122,6 +123,8 @@ static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
                                       ValuePtr Result) {
   EmitError(&Data->Loc, "HandlePointerOverflowImpl");
 }
+
+#pragma GCC diagnostic pop
 
 /******************************************************************************
  * We know that all of these functions will be unused because they're called
