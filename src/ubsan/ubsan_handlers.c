@@ -77,7 +77,16 @@ static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
-  EmitError(&Data->Loc, "HandleNegationOverflowImpl");
+  bool isSigned = isSignedIntegerType(*Data->Type);
+
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  if(isSigned) {
+    EmitError(&Data->Loc, "negation of %li cannot be represented in type %s", getSIntValue(*Data->Type, Val), getTypeName(Data->Type));
+  } else {
+    EmitError(&Data->Loc, "negation of %lu cannot be represented in type %s", getUIntValue(*Data->Type, Val), getTypeName(Data->Type));
+  }
 }
 
 static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
