@@ -1,6 +1,10 @@
 {
-    "addition_overflow": {
-        "output1": "HandleIntegerOverflowImpl"
+    "signed_addition_overflow": {
+        "output1": "signed integer overflow: [0-9]+ \\+ 1 cannot be represented in type"
+    },
+
+    "unsigned_addition_overflow": {
+        "output1": "unsigned integer overflow: [0-9]+ \\+ 1 cannot be represented in type"
     },
 
     "shift_overflow": {

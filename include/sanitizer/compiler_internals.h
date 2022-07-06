@@ -56,17 +56,17 @@ bool isUnsignedIntegerType(const TypeDescriptor desc) {
 bool isInlineInt(const TypeDescriptor desc) {
   const unsigned InlineSize = sizeof(ValuePtr) * 8;
   const unsigned TypeWidth = getIntegerBitWidth(desc);
-  return TypeWidth < InlineSize;
+  return TypeWidth <= InlineSize;
 }
 
 bool isInlineFloat(const TypeDescriptor desc) {
   const unsigned InlineSize = sizeof(ValuePtr) * 8;
   const unsigned TypeWidth = getFloatBitWidth(desc);
-  return TypeWidth < InlineSize;
+  return TypeWidth <= InlineSize;
 }
 
 
-uintmax_t getUIntValue(const TypeDescriptor desc, ValuePtr val) {
+uintmax_t getSIntValue(const TypeDescriptor desc, ValuePtr val) {
   // TODO: handle isUnsignedIntegerType(desc) == false
 
   if(isInlineInt(desc)) {
@@ -77,7 +77,7 @@ uintmax_t getUIntValue(const TypeDescriptor desc, ValuePtr val) {
     return *(intmax_t *)val;
 }
 
-intmax_t getSIntValue(const TypeDescriptor desc, ValuePtr val) {
+intmax_t getUIntValue(const TypeDescriptor desc, ValuePtr val) {
   if(isInlineInt(desc))
     return val;
   else

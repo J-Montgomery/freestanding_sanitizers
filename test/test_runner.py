@@ -28,13 +28,20 @@ def run_test(config, test):
     err_log = b'\n'.join(output.stderr.splitlines())
     log.debug(f"\t\tstdout:\n\t{out_log}\n\t\tstderr:\n{err_log}")
 
+    if len(stderr_log) <= 0:
+        log.error(f'\t{test} failed to return an error')
+        print(f'-------------------------------------------------------\n\n')
+        sys.exit(1)
+
     for line in stderr_log:
-        if test_regexes is None:
+        if test_regexes is None or len(test_regexes) == 0:
             print("skipping")
             break
 
         regex = test_regexes.pop()
-        if not regex.search(line.decode('ascii')):
+        result = regex.search(line.decode('ascii'))
+        log.debug(f'found {result}')
+        if not result:
             log.error(f"\t{test} failed")
             log.error(f"\t\t{regex} does not match '{line}'")
             print(f'-------------------------------------------------------\n\n')

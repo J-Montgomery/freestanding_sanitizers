@@ -62,20 +62,18 @@ static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
-  //bool isSigned = isSignedIntegerType(*Data->Type);
-  
+  bool isSigned = isSignedIntegerType(*Data->Type);
+
   if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
 
-  EmitError(&Data->Loc, "Test Overflow\n");
-  // if(isSigned) {
-  //   EmitError(&Data->Loc, "signed integer overflow: %li %s %li cannot be represented in type %s",
-  // getSIntValue(*Data->Type, LHS), Op, RHS, getTypeName(Data->Type));
-  // } else {
-  //   EmitError(&Data->Loc, "unsigned integer overflow: %lu %s %lu cannot be represented in type %s",
-  // getUIntValue(*Data->Type, LHS), Op, RHS, getTypeName(Data->Type));
-  // }
-  EmitError(&Data->Loc, "Test Overflow2\n");
+  if(isSigned) {
+    EmitError(&Data->Loc, "signed integer overflow: %li %s %li cannot be represented in type %s", getSIntValue(*(Data->Type), LHS), Op, RHS, getTypeName(Data->Type));
+  } else {
+    EmitError(&Data->Loc, "unsigned integer overflow: %lu %s %lu cannot be represented in type %s",
+  getUIntValue(*Data->Type, LHS), Op, RHS, getTypeName(Data->Type));
+  }
+
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
