@@ -32,7 +32,6 @@ static bool LocIsValid(SourceLocation *Loc) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
   ValuePtr alignment = (ValuePtr)1 << Data->Alignment;
