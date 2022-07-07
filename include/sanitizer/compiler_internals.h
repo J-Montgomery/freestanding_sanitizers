@@ -33,9 +33,7 @@ int getIntegerBitWidth(const TypeDescriptor desc) {
   return 1 << (desc.TypeInfo >> 1);
 }
 
-int getFloatBitWidth(const TypeDescriptor desc) {
-  return desc.TypeInfo;
-}
+int getFloatBitWidth(const TypeDescriptor desc) { return desc.TypeInfo; }
 
 bool isIntegerType(const TypeDescriptor desc) {
   return getTypeKind(desc) == TK_Integer;
@@ -65,22 +63,19 @@ bool isInlineFloat(const TypeDescriptor desc) {
   return TypeWidth <= InlineSize;
 }
 
-
 uintmax_t getSIntValue(const TypeDescriptor desc, ValuePtr val) {
   // TODO: handle isUnsignedIntegerType(desc) == false
 
-  if(isInlineInt(desc)) {
+  if (isInlineInt(desc)) {
     const unsigned offset = sizeof(intmax_t) * 8 - getIntegerBitWidth(desc);
     return ((intmax_t)val << offset) >> offset;
-  }
-  else // let the compiler zero-extend the value
+  } else // let the compiler zero-extend the value
     return *(intmax_t *)val;
 }
 
 intmax_t getUIntValue(const TypeDescriptor desc, ValuePtr val) {
-  if(isInlineInt(desc))
+  if (isInlineInt(desc))
     return val;
   else
     return *(uintmax_t *)val;
-
 }

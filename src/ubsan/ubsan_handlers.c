@@ -67,13 +67,21 @@ static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
   if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
 
-  if(isSigned) {
-    EmitError(&Data->Loc, "signed integer overflow: %li %s %li cannot be represented in type %s", getSIntValue(*(Data->Type), LHS), Op, RHS, getTypeName(Data->Type));
+  if (isSigned) {
+    EmitError(
+        &Data->Loc,
+        "signed integer overflow: value cannot be represented in type %s:\n",
+        getTypeName(Data->Type));
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li %s %li)\n",
+                           getSIntValue(*(Data->Type), LHS), Op, RHS);
   } else {
-    EmitError(&Data->Loc, "unsigned integer overflow: %lu %s %lu cannot be represented in type %s",
-  getUIntValue(*Data->Type, LHS), Op, RHS, getTypeName(Data->Type));
+    EmitError(
+        &Data->Loc,
+        "unsigned integer overflow: value cannot be represented in type %s:\n",
+        getTypeName(Data->Type));
+    __sanitizer_log_printf(LOG_SILENT, "\t(%lu %s %lu)\n",
+                           getUIntValue(*(Data->Type), LHS), Op, RHS);
   }
-
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
@@ -82,10 +90,15 @@ static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
   if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
 
-  if(isSigned) {
-    EmitError(&Data->Loc, "negation of %li cannot be represented in type %s", getSIntValue(*Data->Type, Val), getTypeName(Data->Type));
+  EmitError(&Data->Loc, "negation cannot be represented in type %s:\n",
+            getTypeName(Data->Type));
+
+  if (isSigned) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
+                           getSIntValue(*Data->Type, Val));
   } else {
-    EmitError(&Data->Loc, "negation of %lu cannot be represented in type %s", getUIntValue(*Data->Type, Val), getTypeName(Data->Type));
+    __sanitizer_log_printf(LOG_SILENT, "\t(%lu)\n",
+                           getUIntValue(*Data->Type, Val));
   }
 }
 
@@ -96,11 +109,45 @@ static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
 
 static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
                                        ValuePtr RHS) {
-  EmitError(&Data->Loc, "HandleShiftOutOfBoundsImpl");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc, "invalid shift for types %s, %s:\n",
+            getTypeName(Data->LHSType), getTypeName(Data->RHSType));
+
+  if (isSignedIntegerType(*Data->LHSType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tshift base: (%li)\n",
+                           getSIntValue(*Data->LHSType, LHS));
+  } else {
+    __sanitizer_log_printf(LOG_SILENT, "\tshift base: (%lu)\n",
+                           getUIntValue(*Data->LHSType, LHS));
+  }
+
+  if (isSignedIntegerType(*Data->RHSType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tshift exponent: (%li)\n",
+                           getSIntValue(*Data->RHSType, RHS));
+  } else {
+    __sanitizer_log_printf(LOG_SILENT, "\tshift exponent: (%lu)\n",
+                           getUIntValue(*Data->RHSType, RHS));
+  }
 }
 
 static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
-  EmitError(&Data->Loc, "HandleOutOfBoundsImpl");
+  bool isSigned = isSignedIntegerType(*Data->IndexType);
+
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc, "index out of bounds for type %s:\n",
+            getTypeName(Data->ArrayType));
+
+  if (isSigned) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)",
+                           getSIntValue(*Data->IndexType, Index));
+  } else {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%lu)",
+                           getUIntValue(*Data->IndexType, Index));
+  }
 }
 
 static void HandleBuiltinUnreachableImpl(UnreachableData *Data) {

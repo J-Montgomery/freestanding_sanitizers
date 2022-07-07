@@ -1,14 +1,18 @@
 {
     "signed_addition_overflow": {
-        "output1": "signed integer overflow: [0-9]+ \\+ 1 cannot be represented in type"
+        "output1": "signed integer overflow: value cannot be represented in type",
+        "output2": "\\([0-9]+ \\+ 1\\)"
     },
 
     "unsigned_addition_overflow": {
-        "output1": "unsigned integer overflow: [0-9]+ \\+ 1 cannot be represented in type"
+        "output1": "unsigned integer overflow: value cannot be represented in type",
+        "output2": "\\([0-9]+ \\+ 1\\)"
     },
 
     "shift_overflow": {
-        "output1": "HandleShiftOutOfBoundsImpl"
+        "output1": "invalid shift for types",
+        "output2": "shift base: \\([0-9]+\\)",
+        "output3": "shift exponent: \\([0-9]+\\)"
     },
 
     "test_death_override": {
