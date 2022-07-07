@@ -104,7 +104,22 @@ static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
 
 static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                      ValuePtr RHS) {
-  EmitError(&Data->Loc, "HandleDivremOverflowImpl");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  if (isSignedIntegerType(*Data->Type)) {
+    EmitError(&Data->Loc, "signed division of (%li) by (%li) cannot be represented in type %s\n",
+                           getSIntValue(*Data->Type, LHS), getSIntValue(*Data->Type, RHS), getTypeName(Data->Type));
+  } else if (isIntegerType(*Data->Type)) {
+    EmitError(&Data->Loc, "unsigned division of (%lu) by (%lu) cannot be represented in type %s\n",
+                           getUIntValue(*Data->Type, LHS), getUIntValue(*Data->Type, RHS), getTypeName(Data->Type));
+  } else if (isFloatType(*Data->Type)) {
+    EmitError(&Data->Loc, "division of (%Le) by (%Le) cannot be represented in type %s\n",
+                           getFPValue(*Data->Type, LHS), getFPValue(*Data->Type, RHS), getTypeName(Data->Type));
+  } else {
+    // *Data->Type == TK_UNKNOWN
+    EmitError(&Data->Loc, "division cannot be represented in type %s\n", getTypeName(Data->Type));
+  }
 }
 
 static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,

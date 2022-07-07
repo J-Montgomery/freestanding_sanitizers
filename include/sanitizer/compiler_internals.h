@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string.h>
 #include <sanitizer/platform.h>
 
 #if !(defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
@@ -78,4 +79,33 @@ intmax_t getUIntValue(const TypeDescriptor desc, ValuePtr val) {
     return val;
   else
     return *(uintmax_t *)val;
+}
+
+floatmax_t getFPValue(const TypeDescriptor desc, ValuePtr val) {
+
+  if(isInlineFloat(desc)) {
+    switch(getFloatBitWidth(desc)) {
+      default:
+      case 32: {
+        float value;
+#if defined(__BYTE_ORDER__)&&(__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        memcpy(&value, ((const char *)(&val + 1)) - 4, 4);
+#else
+        memcpy(&value, &val, 4);
+#endif
+        return value;
+      }
+      case 64: {
+        double value;
+        memcpy(&value, &val, 8);
+        return value;
+      }
+    }
+  } else {
+    switch(getFloatBitWidth(desc)) {
+      case 32: return *(float *)val;
+      case 64: return *(double *)val;
+      default: return *(floatmax_t *)val;
+    }
+  }
 }
