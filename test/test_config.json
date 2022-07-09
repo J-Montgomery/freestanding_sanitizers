@@ -31,6 +31,10 @@
         "output1": "invalid value to load in type"
     },
 
+    "nonnull_return": {
+        "output1": "null pointer returned from function declared to never return null"
+    },
+
     "test_death_override": {
         "output1": "store to null pointer",
         "output2": "^Custom Death Message$"
