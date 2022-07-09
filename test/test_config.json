@@ -16,15 +16,15 @@
     },
 
     "float_invalid_division": {
-        "output1": "division of \\(.+\\) cannot be represented in type"
+        "output1": "division cannot be represented in type"
     },
 
     "signed_invalid_division": {
-        "output1": "signed division of \\(.+\\) cannot be represented in type"
+        "output1": "division cannot be represented in type"
     },
 
     "unsigned_invalid_division": {
-        "output1": "unsigned division of \\(.+\\) cannot be represented in type"
+        "output1": "division cannot be represented in type"
     },
 
     "invalid_load_bool": {

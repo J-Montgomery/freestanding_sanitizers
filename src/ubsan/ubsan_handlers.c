@@ -30,6 +30,21 @@ static bool LocIsValid(SourceLocation *Loc) {
   return (Loc->Filename != 0) && (Loc->Column != 0);
 }
 
+void PrintValue(TypeDescriptor Type, ValuePtr Val) {
+  if (isSignedIntegerType(Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "(%li)\n",
+                           getSIntValue(Type, Val));
+  } else if (isIntegerType(Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "(%li)\n",
+                           getUIntValue(Type, Val));
+  } else if (isFloatType(Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "(%Le)\n",
+                           getFPValue(Type, Val));
+  } else {
+    __sanitizer_log_printf(LOG_SILENT, "unknown value\n");
+  }
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -83,48 +98,25 @@ static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
 }
 
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
-  bool isSigned = isSignedIntegerType(*Data->Type);
-
   __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "negation cannot be represented in type %s:\n",
             getTypeName(Data->Type));
 
-  if (isSigned) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
-                           getSIntValue(*Data->Type, Val));
-  } else {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%lu)\n",
-                           getUIntValue(*Data->Type, Val));
-  }
+  PrintValue(*Data->Type, Val);
 }
 
 static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                      ValuePtr RHS) {
   __sanitizer_print_backtrace();
 
-  if (isSignedIntegerType(*Data->Type)) {
-    EmitError(
-        &Data->Loc,
-        "signed division of (%li) by (%li) cannot be represented in type %s\n",
-        getSIntValue(*Data->Type, LHS), getSIntValue(*Data->Type, RHS),
-        getTypeName(Data->Type));
-  } else if (isIntegerType(*Data->Type)) {
-    EmitError(&Data->Loc,
-              "unsigned division of (%lu) by (%lu) cannot be represented in "
-              "type %s\n",
-              getUIntValue(*Data->Type, LHS), getUIntValue(*Data->Type, RHS),
-              getTypeName(Data->Type));
-  } else if (isFloatType(*Data->Type)) {
-    EmitError(&Data->Loc,
-              "division of (%Le) by (%Le) cannot be represented in type %s\n",
-              getFPValue(*Data->Type, LHS), getFPValue(*Data->Type, RHS),
-              getTypeName(Data->Type));
-  } else {
-    // *Data->Type == TK_UNKNOWN
-    EmitError(&Data->Loc, "division cannot be represented in type %s\n",
-              getTypeName(Data->Type));
-  }
+  EmitError(&Data->Loc, "division cannot be represented in type %s:\n", getTypeName(Data->Type));
+
+  __sanitizer_log_printf(LOG_SILENT, "\tdividend: ");
+  PrintValue(*Data->Type, LHS);
+
+  __sanitizer_log_printf(LOG_SILENT, "\tdivisor: ");
+  PrintValue(*Data->Type, RHS);
 }
 
 static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
@@ -134,38 +126,21 @@ static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
   EmitError(&Data->Loc, "invalid shift for types %s, %s:\n",
             getTypeName(Data->LHSType), getTypeName(Data->RHSType));
 
-  if (isSignedIntegerType(*Data->LHSType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tshift base: (%li)\n",
-                           getSIntValue(*Data->LHSType, LHS));
-  } else {
-    __sanitizer_log_printf(LOG_SILENT, "\tshift base: (%lu)\n",
-                           getUIntValue(*Data->LHSType, LHS));
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\tshift base: ");
+  PrintValue(*Data->LHSType, LHS);
 
-  if (isSignedIntegerType(*Data->RHSType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tshift exponent: (%li)\n",
-                           getSIntValue(*Data->RHSType, RHS));
-  } else {
-    __sanitizer_log_printf(LOG_SILENT, "\tshift exponent: (%lu)\n",
-                           getUIntValue(*Data->RHSType, RHS));
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\tshift exponent: ");
+  PrintValue(*Data->RHSType, RHS);
 }
 
 static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
-  bool isSigned = isSignedIntegerType(*Data->IndexType);
-
   __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "index out of bounds for type %s:\n",
             getTypeName(Data->ArrayType));
 
-  if (isSigned) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
-                           getSIntValue(*Data->IndexType, Index));
-  } else {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%lu)\n",
-                           getUIntValue(*Data->IndexType, Index));
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\t");
+  PrintValue(*Data->IndexType, Index);
 }
 
 static void HandleBuiltinUnreachableImpl(UnreachableData *Data) {
@@ -188,18 +163,8 @@ static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
             "variable length array bound of type %s is non-positive value:\n",
             getTypeName(Data->Type));
 
-  if (isSignedIntegerType(*Data->Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
-                           getSIntValue(*Data->Type, Bound));
-  } else if (isIntegerType(*Data->Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
-                           getUIntValue(*Data->Type, Bound));
-  } else if (isFloatType(*Data->Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%Le)\n",
-                           getFPValue(*Data->Type, Bound));
-  } else {
-    EmitError(&Data->Loc, "unknown\n");
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\t");
+  PrintValue(*Data->Type, Bound);
 }
 
 static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
@@ -213,18 +178,8 @@ static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
   EmitError(&Data->Loc, "invalid value to load in type %s:\n",
             getTypeName(Data->Type));
 
-  if (isSignedIntegerType(*Data->Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
-                           getSIntValue(*Data->Type, Val));
-  } else if (isIntegerType(*Data->Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
-                           getUIntValue(*Data->Type, Val));
-  } else if (isFloatType(*Data->Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%Le)\n",
-                           getFPValue(*Data->Type, Val));
-  } else {
-    EmitError(&Data->Loc, "unknown\n");
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\t");
+  PrintValue(*Data->Type, Val);
 }
 
 static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
@@ -235,34 +190,11 @@ static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
             "implicit conversion from type %s to type %s changed value:\n",
             getTypeName(Data->FromType), getTypeName(Data->ToType));
 
-  if (isSignedIntegerType(*Data->FromType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tFrom: (%li)\n",
-                           getSIntValue(*Data->FromType, Src));
-  } else if (isIntegerType(*Data->FromType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tFrom: (%li)\n",
-                           getUIntValue(*Data->FromType, Src));
-  } else if (isFloatType(*Data->FromType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tFrom: (%Le)\n",
-                           getFPValue(*Data->FromType, Src));
-  } else {
-    EmitError(&Data->Loc, "\tFrom: unknown value\n");
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\tFrom: ");
+  PrintValue(*Data->FromType, Src);
 
-  if (isSignedIntegerType(*Data->ToType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tTo %i-bit signed: (%li)\n",
-                           getIntegerBitWidth(*Data->ToType),
-                           getSIntValue(*Data->ToType, Dst));
-  } else if (isIntegerType(*Data->ToType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tTo %i-bit unsigned: (%li)\n",
-                           getIntegerBitWidth(*Data->ToType),
-                           getUIntValue(*Data->ToType, Dst));
-  } else if (isFloatType(*Data->ToType)) {
-    __sanitizer_log_printf(LOG_SILENT, "\tTo %i-bit float: (%Le)\n",
-                           getFloatBitWidth(*Data->ToType),
-                           getFPValue(*Data->ToType, Dst));
-  } else {
-    EmitError(&Data->Loc, "\tTo: unknown value\n");
-  }
+  __sanitizer_log_printf(LOG_SILENT, "\t %i-bit:", getIntegerBitWidth(*Data->ToType));
+  PrintValue(*Data->ToType, Dst);
 }
 
 static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
