@@ -276,21 +276,41 @@ static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
 }
 
 static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
-  EmitError(&Data->Loc, "HandleInvalidBuiltin");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+  EmitError(&Data->Loc, "passing invalid value zero to %s\n",
+            ((Data->Kind) == CTZPassedZero) ? "ctz" : "clz");
 }
 
 static void HandleNonNullReturn(NonNullReturnData *Data, SourceLocation *LocPtr,
                                 bool IsAttr) {
-  EmitError(LocPtr, "HandleNonNullReturn");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+  EmitError(
+      LocPtr,
+      "null pointer returned from function declared to never return null\n");
 }
 
 static void HandleNonNullArg(NonNullArgData *Data, bool IsAttr) {
-  EmitError(&Data->Loc, "HandleNonNullArg");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+  EmitError(&Data->Loc,
+            "null pointer passed as argument %i, which is declared to never be "
+            "null\n",
+            Data->ArgIndex);
 }
 
 static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
                                       ValuePtr Result) {
-  EmitError(&Data->Loc, "HandlePointerOverflowImpl");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  if (Base == 0) {
+    EmitError(&Data->Loc, "applying offset %lx to null pointer\n", Result);
+  } else {
+    EmitError(&Data->Loc, "pointer 0x%lx overflowed to base 0x%lx\n", Base,
+              Result);
+  }
 }
 
 #pragma GCC diagnostic pop

@@ -57,6 +57,11 @@ typedef struct {
   unsigned char Kind; // ImplicitConversionKind
 } ImplicitConversionData;
 
+enum BuiltinCheckKind {
+  CTZPassedZero,
+  CLZPassedZero,
+};
+
 typedef struct {
   SourceLocation Loc;
   unsigned char Kind; // BuiltinKind
