@@ -68,7 +68,20 @@ static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
 static void HandleAlignmentAssumptionImpl(AlignmentAssumptionData *Data,
                                           ValuePtr Pointer, ValuePtr Alignment,
                                           ValuePtr Offset) {
-  EmitError(&Data->Loc, "HandleAlignmentAssumptionImpl");
+  sys_uptr BasePointer = Pointer - Offset;
+  sys_uptr AlignmentOffset = BasePointer & (Alignment - 1);
+
+  __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc,
+            "assumption of %li byte alignment for pointer of type %s failed:\n",
+            Alignment, getTypeName(Data->Type));
+
+  __sanitizer_log_printf(LOG_SILENT, "\tbase address: (%li)\n", BasePointer);
+  __sanitizer_log_printf(LOG_SILENT, "\talignment offset: (%li)\n",
+                         AlignmentOffset);
+
+  EmitError(&Data->AssumptionLoc, "alignment assumption was specified here\n");
 }
 
 static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
@@ -100,6 +113,7 @@ static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
   EmitError(&Data->Loc, "negation cannot be represented in type %s:\n",
             getTypeName(Data->Type));
 
+  __sanitizer_log_printf(LOG_SILENT, "\t");
   PrintValue(*Data->Type, Val);
 }
 
