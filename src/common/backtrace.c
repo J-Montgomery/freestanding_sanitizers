@@ -58,6 +58,9 @@ EXTERN_C void __sanitizer_print_backtrace_impl(void) {
   char **bt_syms;
   unsigned i;
 
+  if(!__sanitizer_backtrace_enabled())
+    return;
+
   bt_size = backtrace(bt_ptrs, SANITIZER_CONFIG_BACKTRACE_DEPTH);
   bt_syms = backtrace_symbols(bt_ptrs, bt_size);
 

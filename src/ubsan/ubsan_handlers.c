@@ -63,8 +63,7 @@ static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                       const char *Op, ValuePtr RHS) {
   bool isSigned = isSignedIntegerType(*Data->Type);
 
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   if (isSigned) {
     EmitError(
@@ -86,8 +85,7 @@ static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
 static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
   bool isSigned = isSignedIntegerType(*Data->Type);
 
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "negation cannot be represented in type %s:\n",
             getTypeName(Data->Type));
@@ -103,8 +101,7 @@ static void HandleNegationOverflowImpl(OverflowData *Data, ValuePtr Val) {
 
 static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                      ValuePtr RHS) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   if (isSignedIntegerType(*Data->Type)) {
     EmitError(
@@ -132,8 +129,7 @@ static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
 
 static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
                                        ValuePtr RHS) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "invalid shift for types %s, %s:\n",
             getTypeName(Data->LHSType), getTypeName(Data->RHSType));
@@ -158,8 +154,7 @@ static void HandleShiftOutOfBoundsImpl(ShiftOutOfBoundsData *Data, ValuePtr LHS,
 static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
   bool isSigned = isSignedIntegerType(*Data->IndexType);
 
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "index out of bounds for type %s:\n",
             getTypeName(Data->ArrayType));
@@ -174,23 +169,20 @@ static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
 }
 
 static void HandleBuiltinUnreachableImpl(UnreachableData *Data) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "execution reached an unreacheable program point\n");
 }
 
 static void HandleMissingReturnImpl(UnreachableData *Data) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "execution returned from value-returning function "
                         "without returning a value\n");
 }
 
 static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc,
             "variable length array bound of type %s is non-positive value:\n",
@@ -216,8 +208,7 @@ static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
 }
 
 static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc, "invalid value to load in type %s:\n",
             getTypeName(Data->Type));
@@ -238,8 +229,7 @@ static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
 
 static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
                                      ValuePtr Dst) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   EmitError(&Data->Loc,
             "implicit conversion from type %s to type %s changed value:\n",
@@ -276,24 +266,21 @@ static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
 }
 
 static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
   EmitError(&Data->Loc, "passing invalid value zero to %s\n",
             ((Data->Kind) == CTZPassedZero) ? "ctz" : "clz");
 }
 
 static void HandleNonNullReturn(NonNullReturnData *Data, SourceLocation *LocPtr,
                                 bool IsAttr) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
   EmitError(
       LocPtr,
       "null pointer returned from function declared to never return null\n");
 }
 
 static void HandleNonNullArg(NonNullArgData *Data, bool IsAttr) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
   EmitError(&Data->Loc,
             "null pointer passed as argument %i, which is declared to never be "
             "null\n",
@@ -302,8 +289,7 @@ static void HandleNonNullArg(NonNullArgData *Data, bool IsAttr) {
 
 static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
                                       ValuePtr Result) {
-  if (__sanitizer_backtrace_enabled())
-    __sanitizer_print_backtrace();
+  __sanitizer_print_backtrace();
 
   if (Base == 0) {
     EmitError(&Data->Loc, "applying offset %lx to null pointer\n", Result);
