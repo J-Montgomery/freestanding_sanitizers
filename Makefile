@@ -1,7 +1,7 @@
 include test/ubsan/ubsan.mk
 SRC_DIR=src
 
-CFLAGS+=-fPIC -Wall -Wextra -pedantic -std=c99 -Werror -Os
+CFLAGS+=-fPIC -Wall -Wextra -pedantic -std=c99 -Werror -Os -s
 LDFLAGS+=-shared -rdynamic
 INC_DIR=-Iinclude -I$(SRC_DIR)
 
