@@ -24,11 +24,11 @@
     },
 
     "unsigned_invalid_division": {
-        "output2": "unsigned division of \\(.+\\) cannot be represented in type"
+        "output1": "unsigned division of \\(.+\\) cannot be represented in type"
     },
 
     "invalid_load_bool": {
-        "output2": "fail"
+        "output1": "invalid value to load in type"
     },
 
     "test_death_override": {

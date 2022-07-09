@@ -107,17 +107,26 @@ static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
     __sanitizer_print_backtrace();
 
   if (isSignedIntegerType(*Data->Type)) {
-    EmitError(&Data->Loc, "signed division of (%li) by (%li) cannot be represented in type %s\n",
-                           getSIntValue(*Data->Type, LHS), getSIntValue(*Data->Type, RHS), getTypeName(Data->Type));
+    EmitError(
+        &Data->Loc,
+        "signed division of (%li) by (%li) cannot be represented in type %s\n",
+        getSIntValue(*Data->Type, LHS), getSIntValue(*Data->Type, RHS),
+        getTypeName(Data->Type));
   } else if (isIntegerType(*Data->Type)) {
-    EmitError(&Data->Loc, "unsigned division of (%lu) by (%lu) cannot be represented in type %s\n",
-                           getUIntValue(*Data->Type, LHS), getUIntValue(*Data->Type, RHS), getTypeName(Data->Type));
+    EmitError(&Data->Loc,
+              "unsigned division of (%lu) by (%lu) cannot be represented in "
+              "type %s\n",
+              getUIntValue(*Data->Type, LHS), getUIntValue(*Data->Type, RHS),
+              getTypeName(Data->Type));
   } else if (isFloatType(*Data->Type)) {
-    EmitError(&Data->Loc, "division of (%Le) by (%Le) cannot be represented in type %s\n",
-                           getFPValue(*Data->Type, LHS), getFPValue(*Data->Type, RHS), getTypeName(Data->Type));
+    EmitError(&Data->Loc,
+              "division of (%Le) by (%Le) cannot be represented in type %s\n",
+              getFPValue(*Data->Type, LHS), getFPValue(*Data->Type, RHS),
+              getTypeName(Data->Type));
   } else {
     // *Data->Type == TK_UNKNOWN
-    EmitError(&Data->Loc, "division cannot be represented in type %s\n", getTypeName(Data->Type));
+    EmitError(&Data->Loc, "division cannot be represented in type %s\n",
+              getTypeName(Data->Type));
   }
 }
 
@@ -175,14 +184,17 @@ static void HandleMissingReturnImpl(UnreachableData *Data) {
   if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
 
-  EmitError(&Data->Loc, "execution returned from value-returning function without returning a value\n");
+  EmitError(&Data->Loc, "execution returned from value-returning function "
+                        "without returning a value\n");
 }
 
 static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
   if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
 
-  EmitError(&Data->Loc, "variable length array bound of type %s is non-positive value:\n", getTypeName(Data->Type));
+  EmitError(&Data->Loc,
+            "variable length array bound of type %s is non-positive value:\n",
+            getTypeName(Data->Type));
 
   if (isSignedIntegerType(*Data->Type)) {
     __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
@@ -205,10 +217,11 @@ static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
 }
 
 static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
-    if (__sanitizer_backtrace_enabled())
+  if (__sanitizer_backtrace_enabled())
     __sanitizer_print_backtrace();
 
-  EmitError(&Data->Loc, "invalid value to load in type %s:\n", getTypeName(Data->Type));
+  EmitError(&Data->Loc, "invalid value to load in type %s:\n",
+            getTypeName(Data->Type));
 
   if (isSignedIntegerType(*Data->Type)) {
     __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
