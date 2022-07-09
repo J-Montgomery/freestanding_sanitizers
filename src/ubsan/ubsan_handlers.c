@@ -156,24 +156,47 @@ static void HandleOutOfBoundsImpl(OutOfBoundsData *Data, ValuePtr Index) {
             getTypeName(Data->ArrayType));
 
   if (isSigned) {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li)",
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
                            getSIntValue(*Data->IndexType, Index));
   } else {
-    __sanitizer_log_printf(LOG_SILENT, "\t(%lu)",
+    __sanitizer_log_printf(LOG_SILENT, "\t(%lu)\n",
                            getUIntValue(*Data->IndexType, Index));
   }
 }
 
 static void HandleBuiltinUnreachableImpl(UnreachableData *Data) {
-  EmitError(&Data->Loc, "HandleBuiltinUnreachableImpl");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc, "execution reached an unreacheable program point\n");
 }
 
 static void HandleMissingReturnImpl(UnreachableData *Data) {
-  EmitError(&Data->Loc, "HandleMissingReturnImpl");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc, "execution returned from value-returning function without returning a value\n");
 }
 
 static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
-  EmitError(&Data->Loc, "HandleVLABoundNotPositive");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc, "variable length array bound of type %s is non-positive value:\n", getTypeName(Data->Type));
+
+  if (isSignedIntegerType(*Data->Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
+                           getSIntValue(*Data->Type, Bound));
+  } else if (isIntegerType(*Data->Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
+                           getUIntValue(*Data->Type, Bound));
+  } else if (isFloatType(*Data->Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%Le)\n",
+                           getFPValue(*Data->Type, Bound));
+  } else {
+    // *Data->Type == TK_UNKNOWN
+    EmitError(&Data->Loc, "unknown\n");
+  }
 }
 
 static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
@@ -181,8 +204,25 @@ static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
   // EmitError(0, "HandleFloatCastOverflow");
 }
 
-static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Vals) {
-  EmitError(&Data->Loc, "HandleLoadInvalidValue");
+static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
+    if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc, "invalid value to load in type %s:\n", getTypeName(Data->Type));
+
+  if (isSignedIntegerType(*Data->Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
+                           getSIntValue(*Data->Type, Val));
+  } else if (isIntegerType(*Data->Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%li)\n",
+                           getUIntValue(*Data->Type, Val));
+  } else if (isFloatType(*Data->Type)) {
+    __sanitizer_log_printf(LOG_SILENT, "\t(%Le)\n",
+                           getFPValue(*Data->Type, Val));
+  } else {
+    // *Data->Type == TK_UNKNOWN
+    EmitError(&Data->Loc, "unknown\n");
+  }
 }
 
 static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,

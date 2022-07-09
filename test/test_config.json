@@ -27,6 +27,10 @@
         "output2": "unsigned division of \\(.+\\) cannot be represented in type"
     },
 
+    "invalid_load_bool": {
+        "output2": "fail"
+    },
+
     "test_death_override": {
         "output1": "store to null pointer",
         "output2": "^Custom Death Message$"
