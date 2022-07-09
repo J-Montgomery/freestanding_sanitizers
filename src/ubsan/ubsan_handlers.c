@@ -206,7 +206,6 @@ static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
     __sanitizer_log_printf(LOG_SILENT, "\t(%Le)\n",
                            getFPValue(*Data->Type, Bound));
   } else {
-    // *Data->Type == TK_UNKNOWN
     EmitError(&Data->Loc, "unknown\n");
   }
 }
@@ -233,14 +232,47 @@ static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
     __sanitizer_log_printf(LOG_SILENT, "\t(%Le)\n",
                            getFPValue(*Data->Type, Val));
   } else {
-    // *Data->Type == TK_UNKNOWN
     EmitError(&Data->Loc, "unknown\n");
   }
 }
 
 static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
                                      ValuePtr Dst) {
-  EmitError(&Data->Loc, "HandleImplicitConversion");
+  if (__sanitizer_backtrace_enabled())
+    __sanitizer_print_backtrace();
+
+  EmitError(&Data->Loc,
+            "implicit conversion from type %s to type %s changed value:\n",
+            getTypeName(Data->FromType), getTypeName(Data->ToType));
+
+  if (isSignedIntegerType(*Data->FromType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tFrom: (%li)\n",
+                           getSIntValue(*Data->FromType, Src));
+  } else if (isIntegerType(*Data->FromType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tFrom: (%li)\n",
+                           getUIntValue(*Data->FromType, Src));
+  } else if (isFloatType(*Data->FromType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tFrom: (%Le)\n",
+                           getFPValue(*Data->FromType, Src));
+  } else {
+    EmitError(&Data->Loc, "\tFrom: unknown value\n");
+  }
+
+  if (isSignedIntegerType(*Data->ToType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tTo %i-bit signed: (%li)\n",
+                           getIntegerBitWidth(*Data->ToType),
+                           getSIntValue(*Data->ToType, Dst));
+  } else if (isIntegerType(*Data->ToType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tTo %i-bit unsigned: (%li)\n",
+                           getIntegerBitWidth(*Data->ToType),
+                           getUIntValue(*Data->ToType, Dst));
+  } else if (isFloatType(*Data->ToType)) {
+    __sanitizer_log_printf(LOG_SILENT, "\tTo %i-bit float: (%Le)\n",
+                           getFloatBitWidth(*Data->ToType),
+                           getFPValue(*Data->ToType, Dst));
+  } else {
+    EmitError(&Data->Loc, "\tTo: unknown value\n");
+  }
 }
 
 static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
