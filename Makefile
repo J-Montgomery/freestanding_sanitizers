@@ -2,7 +2,7 @@ include test/ubsan/ubsan.mk
 SRC_DIR=src
 
 CFLAGS+=-fPIC -Wall -Wextra -pedantic -std=c99 -Werror -Os -s
-LDFLAGS+=-shared -rdynamic
+LDFLAGS+=-shared
 INC_DIR=-Iinclude -I$(SRC_DIR)
 
 COMMON_SRC += $(wildcard $(addsuffix /*.c, $(SRC_DIR)/common))

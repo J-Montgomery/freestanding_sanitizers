@@ -30,7 +30,8 @@ EXTERN_C void ATTR_ALIAS("__sanitizer_print_backtrace_impl")
 volatile atomic_bool __sanitizer_backtrace_flag;
 
 void ATTR_CONSTRUCTOR __sanitizer_backtrace_init(void) {
-  __sanitizer_backtrace_flag = ATOMIC_VAR_INIT(false);
+  __sanitizer_backtrace_flag =
+      ATOMIC_VAR_INIT(SANITIZER_CONFIG_BACKTRACE_DEFAULT);
 }
 
 EXTERN_C void __sanitizer_enable_backtrace_impl(bool enable) {
