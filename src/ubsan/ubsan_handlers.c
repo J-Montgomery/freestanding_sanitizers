@@ -32,14 +32,11 @@ static bool LocIsValid(SourceLocation *Loc) {
 
 void PrintValue(TypeDescriptor Type, ValuePtr Val) {
   if (isSignedIntegerType(Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "(%li)\n",
-                           getSIntValue(Type, Val));
+    __sanitizer_log_printf(LOG_SILENT, "(%li)\n", getSIntValue(Type, Val));
   } else if (isIntegerType(Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "(%li)\n",
-                           getUIntValue(Type, Val));
+    __sanitizer_log_printf(LOG_SILENT, "(%li)\n", getUIntValue(Type, Val));
   } else if (isFloatType(Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "(%Le)\n",
-                           getFPValue(Type, Val));
+    __sanitizer_log_printf(LOG_SILENT, "(%Le)\n", getFPValue(Type, Val));
   } else {
     __sanitizer_log_printf(LOG_SILENT, "unknown value\n");
   }
@@ -110,7 +107,8 @@ static void HandleDivremOverflowImpl(OverflowData *Data, ValuePtr LHS,
                                      ValuePtr RHS) {
   __sanitizer_print_backtrace();
 
-  EmitError(&Data->Loc, "division cannot be represented in type %s:\n", getTypeName(Data->Type));
+  EmitError(&Data->Loc, "division cannot be represented in type %s:\n",
+            getTypeName(Data->Type));
 
   __sanitizer_log_printf(LOG_SILENT, "\tdividend: ");
   PrintValue(*Data->Type, LHS);
@@ -193,7 +191,8 @@ static void HandleImplicitConversion(ImplicitConversionData *Data, ValuePtr Src,
   __sanitizer_log_printf(LOG_SILENT, "\tFrom: ");
   PrintValue(*Data->FromType, Src);
 
-  __sanitizer_log_printf(LOG_SILENT, "\t %i-bit:", getIntegerBitWidth(*Data->ToType));
+  __sanitizer_log_printf(LOG_SILENT,
+                         "\t %i-bit:", getIntegerBitWidth(*Data->ToType));
   PrintValue(*Data->ToType, Dst);
 }
 
