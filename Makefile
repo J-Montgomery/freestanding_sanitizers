@@ -28,7 +28,7 @@ all: ubsan asan
 libubsan.so.1: $(UBSAN_OBJ)
 	$(CC) $(CFLAGS) $(UBSAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
 
-libasan.so.1: $(ASAN_OBJ)
+libasan.so.5: $(ASAN_OBJ)
 	$(CC) $(CFLAGS) $(ASAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
 
 #libubsan.a: $(UBSAN_OBJ)
@@ -40,7 +40,7 @@ ubsan: output_dir libubsan.so.1
 #libasan.a: $(ASAN_OBJ)
 #	ar rcs $(OUT_DIR)/$@ $^
 
-asan: output_dir libasan.so.1
+asan: output_dir libasan.so.5
 
 output_dir:
 	@mkdir -p $(OUT_DIR)

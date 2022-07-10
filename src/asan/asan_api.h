@@ -3,9 +3,8 @@
 #include "asan_types.h"
 #include <sanitizer/interface_utils.h>
 
-#define ASAN_INTERFACE(fname, ...)                         \
-  EXTERN_C ATTR_INTERFACE void __asan_##fname(   \
-      __VA_ARGS__);
+#define ASAN_INTERFACE(fname, ...)                                             \
+  EXTERN_C ATTR_INTERFACE void __asan_##fname(__VA_ARGS__);
 
 // ASAN_INTERFACE(addr_is_in_fake_stack)
 // ASAN_INTERFACE(address_is_poisoned)
