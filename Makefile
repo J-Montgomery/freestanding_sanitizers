@@ -1,4 +1,5 @@
 include test/ubsan/ubsan.mk
+include test/asan/asan.mk
 SRC_DIR=src
 
 CFLAGS+=-fPIC -Wall -Wextra -pedantic -std=c99 -Werror -Os
@@ -26,16 +27,20 @@ all: ubsan asan
 
 libubsan.so.1: $(UBSAN_OBJ)
 	$(CC) $(CFLAGS) $(UBSAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
+
+libasan.so.1: $(ASAN_OBJ)
+	$(CC) $(CFLAGS) $(ASAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
+
 #libubsan.a: $(UBSAN_OBJ)
 #	ar rcs $(OUT_DIR)/$@ $^
 
 ubsan: output_dir libubsan.so.1
 
 # $(CC) $(CFLAGS) $(ASAN_OBJ) $(LDFLAGS) -o $(OUT_DIR)/$@
-libasan.a: $(ASAN_OBJ)
-	ar rcs $(OUT_DIR)/$@ $^
+#libasan.a: $(ASAN_OBJ)
+#	ar rcs $(OUT_DIR)/$@ $^
 
-asan: output_dir libasan.a
+asan: output_dir libasan.so.1
 
 output_dir:
 	@mkdir -p $(OUT_DIR)
@@ -43,7 +48,7 @@ output_dir:
 format:
 	find . -iname *.h -o -iname *.c | xargs clang-format -i
 
-test: ubsan build_ubsan_tests run_ubsan_tests
+test: ubsan asan run_ubsan_tests run_asan_tests
 
 clean:
 	rm -f $(UBSAN_OBJ) $(ASAN_OBJ)

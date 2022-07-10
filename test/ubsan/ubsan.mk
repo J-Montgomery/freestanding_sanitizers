@@ -18,5 +18,5 @@ $(UNUSUAL_UBSAN_TESTS):
 
 build_ubsan_tests: $(UBSAN_TESTS) $(UNUSUAL_UBSAN_TESTS)
 
-run_ubsan_tests: $(UBSAN_TESTS) $(UNUSUAL_UBSAN_TESTS)
+run_ubsan_tests: build_ubsan_tests
 	LD_LIBRARY_PATH=./lib python3 test/test_runner.py --verbose -c test/test_config.json $(UBSAN_TESTS) $(UNUSUAL_UBSAN_TESTS)
