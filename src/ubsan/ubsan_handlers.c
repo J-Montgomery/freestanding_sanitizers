@@ -179,9 +179,44 @@ static void HandleVLABoundNotPositive(VLABoundData *Data, ValuePtr Bound) {
   PrintValue(*Data->Type, Bound);
 }
 
-static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From) {
-  // TODO HandleFloatCastOverflow
-  // EmitError(0, "HandleFloatCastOverflow");
+static void HandleFloatCastOverflow(void *DataPtr, ValuePtr From,
+                                    CallerData CData) {
+  uint8_t Descriptor[2];
+
+  __sanitizer_print_backtrace();
+
+  memcpy(&Descriptor, DataPtr, 2);
+
+  // Horrible hack to determine whether this is a v1 or a v2 event.
+  // If this is v1, DataPtr will point to type descriptors, which can be
+  // either TK_Integer, TK_Float, or TK_Unknown.
+  // If this is a v2 event, the first bytes will be a filename that *probably*
+  // won't collide with the enum values
+  if ((Descriptor[0] + Descriptor[1]) < 2 || (Descriptor[0] == 0xFF) ||
+      (Descriptor[1] == 0xFF)) {
+    // FloatCastOverflowV1
+    // The correct thing to do here is to get the SourceLocation from the caller
+    // PC available in CData. However, this would require us to do runtime
+    // Symbolization, which would add a lot of code-size and complexity.
+    // This library takes the easier, best-effort approach of letting you know
+    // that an error occurred. If you want to know where, you can enable
+    // backtrace.
+    FloatCastOverflowDataV1 Data = *(FloatCastOverflowDataV1 *)DataPtr;
+    __sanitizer_log_printf(LOG_SILENT,
+                           "cast of type %s is outside the range of "
+                           "representable values of type %s:\n\t",
+                           getTypeName(Data.FromType),
+                           getTypeName(Data.ToType));
+    PrintValue(*Data.FromType, From);
+  } else {
+    // FloatCastOverflowV2
+    FloatCastOverflowDataV2 Data = *(FloatCastOverflowDataV2 *)DataPtr;
+    EmitError(&Data.Loc,
+              "cast of type %s is outside the range of representable values of "
+              "type %s:\n\t",
+              getTypeName(Data.FromType), getTypeName(Data.ToType));
+    PrintValue(*Data.FromType, From);
+  }
 }
 
 static void HandleLoadInvalidValue(InvalidValueData *Data, ValuePtr Val) {
@@ -379,11 +414,11 @@ void __ubsan_handle_vla_bound_not_positive_abort(VLABoundData *Data,
 /******************************************************************************/
 
 void __ubsan_handle_float_cast_overflow(void *Data, ValuePtr From) {
-  HandleFloatCastOverflow(Data, From);
+  HandleFloatCastOverflow(Data, From, GET_CALLER_DATA());
 }
 
 void __ubsan_handle_float_cast_overflow_abort(void *Data, ValuePtr From) {
-  HandleFloatCastOverflow(Data, From);
+  HandleFloatCastOverflow(Data, From, GET_CALLER_DATA());
   Die();
 }
 

@@ -7,8 +7,17 @@
 #error "Compiler not supported"
 #endif
 
+typedef struct {
+  sys_uptr pc;
+  sys_uptr bp;
+} CallerData;
+
 #define GET_RETURN_ADDR() __builtin_return_address(0)
 #define GET_CURRENT_FRAME() __builtin_frame_address(0)
+#define GET_CALLER_DATA()                                                      \
+  (CallerData) {                                                               \
+    .pc = (sys_uptr)GET_RETURN_ADDR(), .bp = (sys_uptr)GET_CURRENT_FRAME()     \
+  }
 
 typedef struct {
   char *Filename;

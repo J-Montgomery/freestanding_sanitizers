@@ -43,7 +43,16 @@ typedef struct {
   REFERENCE(const TypeDescriptor) Type;
 } VLABoundData;
 
-// ignore FloatCastOverflowData for now
+typedef struct {
+  REFERENCE(const TypeDescriptor) FromType;
+  REFERENCE(const TypeDescriptor) ToType;
+} FloatCastOverflowDataV1;
+
+typedef struct {
+  SourceLocation Loc;
+  REFERENCE(const TypeDescriptor) FromType;
+  REFERENCE(const TypeDescriptor) ToType;
+} FloatCastOverflowDataV2;
 
 typedef struct {
   SourceLocation Loc;
@@ -86,9 +95,3 @@ typedef struct {
   SourceLocation Loc;
   REFERENCE(const TypeDescriptor) Type;
 } CFICheckFailData;
-
-typedef struct {
-  bool FromUnrecoverableLoc;
-  sys_uptr pc;
-  sys_uptr bp;
-} ReportOptions;

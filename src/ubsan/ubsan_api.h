@@ -44,7 +44,7 @@ RECOVERABLE(pointer_overflow, PointerOverflowData *Data, ValuePtr Base,
             ValuePtr Result)
 
 // Don't handle until the version compatibility issues are sorted
-// RECOVERABLE(float_cast_overflow, void *Data, ValuePtr From)
+RECOVERABLE(float_cast_overflow, void *Data, ValuePtr From)
 
 UNRECOVERABLE(builtin_unreachable, UnreachableData *Data)
 UNRECOVERABLE(missing_return, UnreachableData *Data)
