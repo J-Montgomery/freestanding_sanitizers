@@ -1,5 +1,5 @@
 {
     "asan_base": {
-        "output1": "Fail"
+        "output1": "__asan_init"
     }
 }
