@@ -10,4 +10,18 @@ typedef signed long sys_sptr;
 typedef sys_uptr sys_uhwptr;
 typedef sys_uptr ValuePtr;
 
-typedef long double floatmax_t;
+typedef double floatmax_t;
+
+#if defined(__x86_64__) || defined(__x86_32__) || defined(__i386)
+#define SIntFormat "%li"
+#define UIntFormat "%lu"
+#define FloatFormat "%lE"
+#define LineFormat "%u"
+#elif defined(__ARM_ARCH_7R__)
+#define SIntFormat "%llu"
+#define UIntFormat "%llu"
+#define FloatFormat "%lE"
+#define LineFormat "%lu"
+#else
+#error "Define format specifiers for your architecture"
+#endif
