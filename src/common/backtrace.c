@@ -13,7 +13,8 @@ EXTERN_C bool ATTR_ALIAS("__sanitizer_backtrace_enabled_impl")
 EXTERN_C void ATTR_ALIAS("__sanitizer_print_backtrace_impl")
     __sanitizer_print_backtrace(void);
 
-#ifdef SANITIZER_CONFIG_BACKTRACE_ENABLE
+#if defined(SANITIZER_CONFIG_BACKTRACE_ENABLE) &&                              \
+    (SANITIZER_CONFIG_BACKTRACE_ENABLE != 0)
 
 #include <errno.h>
 #include <stdlib.h>
@@ -80,7 +81,12 @@ EXTERN_C void __sanitizer_print_backtrace_impl(void) {
 }
 
 #else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 EXTERN_C void __sanitizer_enable_backtrace_impl(bool enable) { return; }
 EXTERN_C bool __sanitizer_backtrace_enabled_impl(void) { return false; }
 EXTERN_C void __sanitizer_print_backtrace_impl(void) { return; }
+
+#pragma GCC diagnostic pop
 #endif

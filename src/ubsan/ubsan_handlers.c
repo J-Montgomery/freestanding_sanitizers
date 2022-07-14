@@ -19,8 +19,8 @@ const char *TypeCheckKinds[] = {"load of",
 
 #define EmitError(Loc, ...)                                                    \
   if (LocIsValid(Loc)) {                                                       \
-    __sanitizer_log_printf(LOG_SILENT, "%s:%u:%u: ", (Loc)->Filename,          \
-                           (Loc)->Line, (Loc)->Column);                        \
+    __sanitizer_log_printf(LOG_SILENT, "%s:" LineFormat ":" LineFormat ": ",   \
+                           (Loc)->Filename, (Loc)->Line, (Loc)->Column);       \
   } else {                                                                     \
     __sanitizer_log_printf(LOG_SILENT, "Unknown:N/A:N/A: ");                   \
   }                                                                            \
@@ -32,11 +32,14 @@ static bool LocIsValid(SourceLocation *Loc) {
 
 void PrintValue(TypeDescriptor Type, ValuePtr Val) {
   if (isSignedIntegerType(Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "(%li)\n", getSIntValue(Type, Val));
+    __sanitizer_log_printf(LOG_SILENT, "(" SIntFormat ")\n",
+                           getSIntValue(Type, Val));
   } else if (isIntegerType(Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "(%li)\n", getUIntValue(Type, Val));
+    __sanitizer_log_printf(LOG_SILENT, "(" UIntFormat ")\n",
+                           getUIntValue(Type, Val));
   } else if (isFloatType(Type)) {
-    __sanitizer_log_printf(LOG_SILENT, "(%Le)\n", getFPValue(Type, Val));
+    __sanitizer_log_printf(LOG_SILENT, "(" FloatFormat ")\n",
+                           getFPValue(Type, Val));
   } else {
     __sanitizer_log_printf(LOG_SILENT, "unknown value\n");
   }
@@ -95,15 +98,16 @@ static void HandleIntegerOverflowImpl(OverflowData *Data, ValuePtr LHS,
         &Data->Loc,
         "signed integer overflow: value cannot be represented in type %s:\n",
         getTypeName(Data->Type));
-    __sanitizer_log_printf(LOG_SILENT, "\t(%li %s %li)\n",
-                           getSIntValue(*(Data->Type), LHS), Op, RHS);
+    __sanitizer_log_printf(LOG_SILENT, "\t(" SIntFormat " %s " SIntFormat ")\n",
+                           getSIntValue(*(Data->Type), LHS), Op, (intmax_t)RHS);
   } else {
     EmitError(
         &Data->Loc,
         "unsigned integer overflow: value cannot be represented in type %s:\n",
         getTypeName(Data->Type));
-    __sanitizer_log_printf(LOG_SILENT, "\t(%lu %s %lu)\n",
-                           getUIntValue(*(Data->Type), LHS), Op, RHS);
+    __sanitizer_log_printf(LOG_SILENT, "\t(" UIntFormat " %s " UIntFormat ")\n",
+                           getUIntValue(*(Data->Type), LHS), Op,
+                           (uintmax_t)RHS);
   }
 }
 
