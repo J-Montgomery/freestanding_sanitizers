@@ -13,8 +13,7 @@ EXTERN_C bool ATTR_ALIAS("__sanitizer_backtrace_enabled_impl")
 EXTERN_C void ATTR_ALIAS("__sanitizer_print_backtrace_impl")
     __sanitizer_print_backtrace(void);
 
-#if defined(SANITIZER_CONFIG_BACKTRACE_ENABLE) &&                              \
-    (SANITIZER_CONFIG_BACKTRACE_ENABLE != 0)
+#if SANITIZER_CONFIG_BACKTRACE_ENABLE == 1
 
 #include <errno.h>
 #include <stdlib.h>
@@ -32,7 +31,7 @@ volatile atomic_bool __sanitizer_backtrace_flag;
 
 void ATTR_CONSTRUCTOR __sanitizer_backtrace_init(void) {
   __sanitizer_backtrace_flag =
-      ATOMIC_VAR_INIT(SANITIZER_CONFIG_BACKTRACE_DEFAULT);
+      ATOMIC_VAR_INIT(SANITIZER_CONFIG_BACKTRACE_RUNTIME_DEFAULT_STATE);
 }
 
 EXTERN_C void __sanitizer_enable_backtrace_impl(bool enable) {
@@ -89,4 +88,4 @@ EXTERN_C bool __sanitizer_backtrace_enabled_impl(void) { return false; }
 EXTERN_C void __sanitizer_print_backtrace_impl(void) { return; }
 
 #pragma GCC diagnostic pop
-#endif
+#endif /* SANITIZER_CONFIG_BACKTRACE_ENABLE == 1 */

@@ -11,7 +11,10 @@ typedef sys_uptr sys_uhwptr;
 typedef sys_uptr ValuePtr;
 
 #if defined(__x86_64__) || defined(__x86_32__) || defined(__i386)
-typedef long double floatmax_t;
+
+// Long doubles shouldn't exist, so let's pretend they don't
+typedef double floatmax_t;
+
 #define SIntFormat "%li"
 #define UIntFormat "%lu"
 #define FloatFormat "%lE"
