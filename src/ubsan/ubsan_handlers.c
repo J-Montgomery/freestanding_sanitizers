@@ -17,6 +17,25 @@ const char *TypeCheckKinds[] = {"load of",
                                 "_Nonnull binding to",
                                 "dynamic operation on"};
 
+const char *CFITypeCheckKinds[] = {"virtual call",
+                                   "non-virtual call",
+                                   "base-to-derived cast",
+                                   "cast to unrelated type",
+                                   "virtual pointer to member function call",
+                                   "indirect function call",
+                                   "non-virtual member function call"};
+
+// This ultimately comes from
+enum CFITypeKind {
+  CFITCK_VCall = 0,
+  CFITCK_NVCall,
+  CFITCK_DerivedCast,
+  CFITCK_UnrelatedCast,
+  CFITCK_ICall,
+  CFITCK_NVMFCall,
+  CFITCK_VMFCall,
+};
+
 #define EmitError(Loc, ...)                                                    \
   if (LocIsValid(Loc)) {                                                       \
     __sanitizer_log_printf(LOG_SILENT, "%s:" LineFormat ":" LineFormat ": ",   \
@@ -283,6 +302,27 @@ static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
   }
 }
 
+static void HandleCfiBadType(CFICheckFailData *Data, ValuePtr Vtable,
+                             bool ValidVtable) {
+  __sanitizer_print_backtrace();
+
+  // It'd be nice to eventually support getting the dynamic type info,
+  // but for now we just provide as much information as we can easily access
+  switch (Data->Kind) {
+  case CFITCK_VCall:
+  case CFITCK_NVCall:
+  case CFITCK_DerivedCast:
+  case CFITCK_UnrelatedCast:
+  case CFITCK_VMFCall:
+  case CFITCK_ICall:
+  case CFITCK_NVMFCall:
+    EmitError(
+        &Data->Loc,
+        "control flow integrity check failed during %s (vtable address %lx)\n",
+        CFITypeCheckKinds[Data->Kind], Vtable);
+  }
+}
+
 #pragma GCC diagnostic pop
 
 /******************************************************************************
@@ -525,4 +565,22 @@ void __ubsan_handle_missing_return(UnreachableData *Data) {
 
 /******************************************************************************/
 
+void __ubsan_handle_cfi_bad_type(CFICheckFailData *Data, ValuePtr Vtable,
+                                 bool ValidVtable) {
+  HandleCfiBadType(Data, Vtable, ValidVtable);
+  Die();
+}
+
+void __ubsan_handle_cfi_check_fail(CFICheckFailData *Data, ValuePtr Value,
+                                   sys_uptr ValidVtable) {
+  __ubsan_handle_cfi_bad_type(Data, Value, ValidVtable);
+}
+
+void __ubsan_handle_cfi_check_fail_abort(CFICheckFailData *Data, ValuePtr Value,
+                                         sys_uptr ValidVtable) {
+  __ubsan_handle_cfi_bad_type(Data, Value, ValidVtable);
+  Die();
+}
+
+/******************************************************************************/
 #pragma GCC diagnostic pop

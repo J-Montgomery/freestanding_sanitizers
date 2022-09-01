@@ -49,6 +49,11 @@ RECOVERABLE(float_cast_overflow, void *Data, ValuePtr From)
 UNRECOVERABLE(builtin_unreachable, UnreachableData *Data)
 UNRECOVERABLE(missing_return, UnreachableData *Data)
 
+RECOVERABLE(cfi_check_fail, CFICheckFailData *Data, ValuePtr Value,
+            sys_uptr ValidVtable)
+UNRECOVERABLE(cfi_bad_type, CFICheckFailData *Data, ValuePtr Vtable,
+              bool ValidVtable)
+
 typedef enum UB_Type {
   Err_Unknown,
   Err_NullPtrUse,
