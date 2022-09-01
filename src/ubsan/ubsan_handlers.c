@@ -17,6 +17,25 @@ const char *TypeCheckKinds[] = {"load of",
                                 "_Nonnull binding to",
                                 "dynamic operation on"};
 
+const char *CFITypeCheckKinds[] = {"virtual call",
+                                   "non-virtual call",
+                                   "base-to-derived cast",
+                                   "cast to unrelated type",
+                                   "virtual pointer to member function call",
+                                   "indirect function call",
+                                   "non-virtual member function call"};
+
+// This ultimately comes from
+enum CFITypeKind {
+  CFITCK_VCall = 0,
+  CFITCK_NVCall,
+  CFITCK_DerivedCast,
+  CFITCK_UnrelatedCast,
+  CFITCK_ICall,
+  CFITCK_NVMFCall,
+  CFITCK_VMFCall,
+};
+
 #define EmitError(Loc, ...)                                                    \
   if (LocIsValid(Loc)) {                                                       \
     __sanitizer_log_printf(LOG_SILENT, "%s:" LineFormat ":" LineFormat ": ",   \
@@ -283,6 +302,51 @@ static void HandlePointerOverflowImpl(PointerOverflowData *Data, ValuePtr Base,
   }
 }
 
+static void HandleCfiBadType(CFICheckFailData *Data, ValuePtr Vtable,
+                             bool ValidVtable) {
+  __sanitizer_print_backtrace();
+
+  // It'd be nice to eventually support getting the dynamic type info,
+  // but for now we just provide as much information as we can easily access
+  switch (Data->Kind) {
+  case CFITCK_VCall:
+  case CFITCK_NVCall:
+  case CFITCK_DerivedCast:
+  case CFITCK_UnrelatedCast:
+  case CFITCK_VMFCall:
+  case CFITCK_ICall:
+  case CFITCK_NVMFCall:
+    EmitError(&Data->Loc,
+              "control flow integrity check failed during %s (vtable address "
+              "0x%lx)\n",
+              CFITypeCheckKinds[Data->Kind], Vtable);
+  }
+}
+
+static void HandleFunctionTypeMismatch(FunctionTypeMismatchData *Data,
+                                       ValuePtr Val, ValuePtr calleeRTTI,
+                                       ValuePtr fnRTTI) {
+  __sanitizer_print_backtrace();
+
+  // As before, we need to get the RTTI info in order to provide sensible error
+  // messages here. Instead, we take a page from the win API of UBSAN and just
+  // assume these values are not equal so we can print a message without
+  // worrying about messy things like itanium
+  EmitError(&Data->Loc, "function type mismatch (0x%lx 0x%lx 0x%lx)\n", Val,
+            calleeRTTI, fnRTTI);
+}
+
+static void HandleDynamicTypeCacheMiss(DynamicTypeCacheMissData *Data,
+                                       ValuePtr Ptr, ValuePtr Hash) {
+
+  __sanitizer_print_backtrace();
+
+  EmitError(
+      &Data->Loc,
+      "%s address 0x%lx does not point to an object of the correct type\n",
+      TypeCheckKinds[Data->Kind], Ptr);
+}
+
 #pragma GCC diagnostic pop
 
 /******************************************************************************
@@ -525,4 +589,46 @@ void __ubsan_handle_missing_return(UnreachableData *Data) {
 
 /******************************************************************************/
 
+void __ubsan_handle_cfi_bad_type(CFICheckFailData *Data, ValuePtr Vtable,
+                                 bool ValidVtable) {
+  HandleCfiBadType(Data, Vtable, ValidVtable);
+  Die();
+}
+
+void __ubsan_handle_cfi_check_fail(CFICheckFailData *Data, ValuePtr Value,
+                                   sys_uptr ValidVtable) {
+  __ubsan_handle_cfi_bad_type(Data, Value, ValidVtable);
+}
+
+void __ubsan_handle_cfi_check_fail_abort(CFICheckFailData *Data, ValuePtr Value,
+                                         sys_uptr ValidVtable) {
+  __ubsan_handle_cfi_bad_type(Data, Value, ValidVtable);
+  Die();
+}
+
+void __ubsan_handle_function_type_mismatch_v1(FunctionTypeMismatchData *Data,
+                                              ValuePtr Val, ValuePtr calleeRTTI,
+                                              ValuePtr fnRTTI) {
+  HandleFunctionTypeMismatch(Data, Val, calleeRTTI, fnRTTI);
+}
+
+void __ubsan_handle_function_type_mismatch_v1_abort(
+    FunctionTypeMismatchData *Data, ValuePtr Val, ValuePtr calleeRTTI,
+    ValuePtr fnRTTI) {
+  HandleFunctionTypeMismatch(Data, Val, calleeRTTI, fnRTTI);
+  Die();
+}
+
+void __ubsan_handle_dynamic_type_cache_miss(DynamicTypeCacheMissData *Data,
+                                            ValuePtr Ptr, ValuePtr Hash) {
+  HandleDynamicTypeCacheMiss(Data, Ptr, Hash);
+}
+
+void __ubsan_handle_dynamic_type_cache_miss_abort(
+    DynamicTypeCacheMissData *Data, ValuePtr Ptr, ValuePtr Hash) {
+  HandleDynamicTypeCacheMiss(Data, Ptr, Hash);
+  Die();
+}
+
+/******************************************************************************/
 #pragma GCC diagnostic pop
