@@ -316,11 +316,24 @@ static void HandleCfiBadType(CFICheckFailData *Data, ValuePtr Vtable,
   case CFITCK_VMFCall:
   case CFITCK_ICall:
   case CFITCK_NVMFCall:
-    EmitError(
-        &Data->Loc,
-        "control flow integrity check failed during %s (vtable address %lx)\n",
-        CFITypeCheckKinds[Data->Kind], Vtable);
+    EmitError(&Data->Loc,
+              "control flow integrity check failed during %s (vtable address "
+              "0x%lx)\n",
+              CFITypeCheckKinds[Data->Kind], Vtable);
   }
+}
+
+static void HandleFunctionTypeMismatch(FunctionTypeMismatchData *Data,
+                                       ValuePtr Val, ValuePtr calleeRTTI,
+                                       ValuePtr fnRTTI) {
+  __sanitizer_print_backtrace();
+
+  // As before, we need to get the RTTI info in order to provide sensible error
+  // messages here. Instead, we take a page from the win API of UBSAN and just
+  // assume these values are not equal so we can print a message without
+  // worrying about messy things like itanium
+  EmitError(&Data->Loc, "function type mismatch (0x%lx 0x%lx 0x%lx)\n", Val,
+            calleeRTTI, fnRTTI);
 }
 
 #pragma GCC diagnostic pop
@@ -579,6 +592,19 @@ void __ubsan_handle_cfi_check_fail(CFICheckFailData *Data, ValuePtr Value,
 void __ubsan_handle_cfi_check_fail_abort(CFICheckFailData *Data, ValuePtr Value,
                                          sys_uptr ValidVtable) {
   __ubsan_handle_cfi_bad_type(Data, Value, ValidVtable);
+  Die();
+}
+
+void __ubsan_handle_function_type_mismatch_v1(FunctionTypeMismatchData *Data,
+                                              ValuePtr Val, ValuePtr calleeRTTI,
+                                              ValuePtr fnRTTI) {
+  HandleFunctionTypeMismatch(Data, Val, calleeRTTI, fnRTTI);
+}
+
+void __ubsan_handle_function_type_mismatch_v1_abort(
+    FunctionTypeMismatchData *Data, ValuePtr Val, ValuePtr calleeRTTI,
+    ValuePtr fnRTTI) {
+  HandleFunctionTypeMismatch(Data, Val, calleeRTTI, fnRTTI);
   Die();
 }
 

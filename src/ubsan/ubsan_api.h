@@ -43,16 +43,19 @@ RECOVERABLE(nullability_arg, NonNullArgData *Data)
 RECOVERABLE(pointer_overflow, PointerOverflowData *Data, ValuePtr Base,
             ValuePtr Result)
 
-// Don't handle until the version compatibility issues are sorted
 RECOVERABLE(float_cast_overflow, void *Data, ValuePtr From)
 
 UNRECOVERABLE(builtin_unreachable, UnreachableData *Data)
 UNRECOVERABLE(missing_return, UnreachableData *Data)
 
+/* C++ APIs that are not fully implemented */
 RECOVERABLE(cfi_check_fail, CFICheckFailData *Data, ValuePtr Value,
             sys_uptr ValidVtable)
 UNRECOVERABLE(cfi_bad_type, CFICheckFailData *Data, ValuePtr Vtable,
               bool ValidVtable)
+
+RECOVERABLE(function_type_mismatch_v1, FunctionTypeMismatchData *Data,
+            ValuePtr Function, ValuePtr calleeRTTI, ValuePtr fnRTTI)
 
 typedef enum UB_Type {
   Err_Unknown,

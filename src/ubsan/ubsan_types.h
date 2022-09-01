@@ -95,3 +95,8 @@ typedef struct {
   SourceLocation Loc;
   REFERENCE(const TypeDescriptor) Type;
 } CFICheckFailData;
+
+typedef struct {
+  SourceLocation Loc;
+  REFERENCE(const TypeDescriptor) Type;
+} FunctionTypeMismatchData;
