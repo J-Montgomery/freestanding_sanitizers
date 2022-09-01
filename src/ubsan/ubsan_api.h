@@ -14,7 +14,7 @@ RECOVERABLE(alignment_assumption, AlignmentAssumptionData *Data,
             ValuePtr Pointer, ValuePtr Alignment, ValuePtr Offset)
 
 // Integer arithmetic overflows
-RECOVERABLE(addition_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
+RECOVERABLE(add_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 RECOVERABLE(sub_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 RECOVERABLE(mul_overflow, OverflowData *Data, ValuePtr Lhs, ValuePtr Rhs)
 RECOVERABLE(negate_overflow, OverflowData *Data, ValuePtr Val)
