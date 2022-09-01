@@ -336,6 +336,17 @@ static void HandleFunctionTypeMismatch(FunctionTypeMismatchData *Data,
             calleeRTTI, fnRTTI);
 }
 
+static void HandleDynamicTypeCacheMiss(DynamicTypeCacheMissData *Data,
+                                       ValuePtr Ptr, ValuePtr Hash) {
+
+  __sanitizer_print_backtrace();
+
+  EmitError(
+      &Data->Loc,
+      "%s address 0x%lx does not point to an object of the correct type\n",
+      TypeCheckKinds[Data->Kind], Ptr);
+}
+
 #pragma GCC diagnostic pop
 
 /******************************************************************************
@@ -605,6 +616,17 @@ void __ubsan_handle_function_type_mismatch_v1_abort(
     FunctionTypeMismatchData *Data, ValuePtr Val, ValuePtr calleeRTTI,
     ValuePtr fnRTTI) {
   HandleFunctionTypeMismatch(Data, Val, calleeRTTI, fnRTTI);
+  Die();
+}
+
+void __ubsan_handle_dynamic_type_cache_miss(DynamicTypeCacheMissData *Data,
+                                            ValuePtr Ptr, ValuePtr Hash) {
+  HandleDynamicTypeCacheMiss(Data, Ptr, Hash);
+}
+
+void __ubsan_handle_dynamic_type_cache_miss_abort(
+    DynamicTypeCacheMissData *Data, ValuePtr Ptr, ValuePtr Hash) {
+  HandleDynamicTypeCacheMiss(Data, Ptr, Hash);
   Die();
 }
 

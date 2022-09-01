@@ -57,6 +57,9 @@ UNRECOVERABLE(cfi_bad_type, CFICheckFailData *Data, ValuePtr Vtable,
 RECOVERABLE(function_type_mismatch_v1, FunctionTypeMismatchData *Data,
             ValuePtr Function, ValuePtr calleeRTTI, ValuePtr fnRTTI)
 
+RECOVERABLE(dynamic_type_cache_miss, DynamicTypeCacheMissData *Data,
+            ValuePtr Ptr, ValuePtr Hash)
+
 typedef enum UB_Type {
   Err_Unknown,
   Err_NullPtrUse,

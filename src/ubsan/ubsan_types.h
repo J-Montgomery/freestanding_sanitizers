@@ -100,3 +100,10 @@ typedef struct {
   SourceLocation Loc;
   REFERENCE(const TypeDescriptor) Type;
 } FunctionTypeMismatchData;
+
+typedef struct {
+  SourceLocation Loc;
+  REFERENCE(const TypeDescriptor) Type;
+  void *TypeInfo;
+  unsigned char Kind;
+} DynamicTypeCacheMissData;
