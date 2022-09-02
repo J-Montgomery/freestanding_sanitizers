@@ -13,18 +13,39 @@ This project currently provides a freestanding implementation of the Undefined B
 
 
 ## Dependencies
-* <stdbool.h>
-* <stdint.h>
-* <stdarg.h>
+* `<stdbool.h>`
+* `<stdint.h>`
+* `<stdarg.h>`
 * GCC or LLVM
 * Make
 * Python3 (Optional)
   * Used to run and validate test cases.
 
 ## Optional Runtime Dependencies
-* <stdio.h>
+* `<stdio.h>`
   * Used in the default logging module. Can be omitted by defining a custom function.
-* <stdlib.h>
+* `<stdlib.h>`
   * Used in the default termination module. Can be omitted by defining a custom function.
 
-## Dev Dependencies
+## Configuration options
+
+The following options control sanitizer functionality:
+
+* `SANITIZER_CONFIG_LOGGER_ENABLE`
+  * This option is enabled by default.
+  * Option controls whether the built-in logging functions are compiled for the sanitizers to use.
+  * Disable with `-DSANITIZER_CONFIG_LOGGER_ENABLE=0`
+  * If this option is not enabled, the sanitizer will compile with minimal stubs that prevent linking errors if appropriate definitions for the following functions are not provided by the application:
+    * `__sanitizer_log_puts`
+    * `__sanitizer_log_printf`
+* `SANITIZER_CONFIG_DIE_ENABLE`
+  * This option is enabled by default.
+  * If the option is enabled, sanitizers will call `exit(1)` on abort if not overridden.
+  * If the option is disabled, sanitizers will enter an infinite `while(1)` loop on abort if not overridden.
+  * Disable with `-DSANITIZER_CONFIG_DIE_ENABLE=0`
+* `SANITIZER_CONFIG_BACKTRACE_ENABLE`
+  * This option is enabled by default on Linux and Apple platforms, where backtrace is generally available.
+  * If the option is enabled, sanitizers will use the backtrace API in `<execinfo.h>` to display a best-effort callstack.
+  * This option depends on `<stdatomic.h>` and `__attribute__((constructor))` because callstack printing can be dynamically enabled or disabled from multiple threads by calling `__sanitizer_enable_backtrace`.
+
+All configuration defaults are set in `include/sanitizer/config.h`
