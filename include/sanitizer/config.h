@@ -20,3 +20,15 @@
 #endif
 
 #endif /* SANITIZER_CONFIG_BACKTRACE_OVERRIDE */
+
+/* Enable the logger by default as most systems have printf family functions
+ * available
+ */
+#ifndef SANITIZER_CONFIG_LOGGER_ENABLE
+#define SANITIZER_CONFIG_LOGGER_ENABLE (1)
+#endif
+
+/* Enable dying by default as most systems support it */
+#ifndef SANITIZER_CONFIG_DIE_ENABLE
+#define SANITIZER_CONFIG_DIE_ENABLE (1)
+#endif

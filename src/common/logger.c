@@ -11,6 +11,8 @@ EXTERN_C __attribute__((format(printf, 2, 3)))
 ATTR_ALIAS("__sanitizer_log_printf_impl") int __sanitizer_log_printf(
     LogLevel Level, const char *Format, ...);
 
+#if SANITIZER_CONFIG_LOGGER_ENABLE == 1
+
 static const char *LevelToStr(LogLevel Level) {
   switch (Level) {
   case LOG_SILENT:
@@ -41,3 +43,20 @@ EXTERN_C int __sanitizer_log_printf_impl(LogLevel Level, const char *Format,
 
   return bytes;
 }
+
+#else
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+EXTERN_C int __sanitizer_log_puts_impl(LogLevel Level, const char *Message) {
+  return 0;
+}
+EXTERN_C int __sanitizer_log_printf_impl(LogLevel Level, const char *Format,
+                                         ...) {
+  return 0;
+}
+
+#pragma GCC diagnostic pop
+
+#endif /* SANITIZER_CONFIG_LOGGER_ENABLE */
