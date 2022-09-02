@@ -1,4 +1,5 @@
 #include <sanitizer/compiler_internals.h>
+#include <string.h>
 
 #include "common/backtrace.h"
 #include "common/sanitizer_common.h"

@@ -10,7 +10,7 @@ This project currently provides a freestanding implementation of the Undefined B
 ## Features
 | Feature             | Implemented        | Notes |
 |---------------------|--------------------|-------|
-| C99                 | :heavy_check_mark: |       |
+| C99                 | :heavy_check_mark: | Uses C11 `stdatomic.h` for optional backtrace |
 | UBSAN               | :heavy_check_mark: | Only handler APIs |
 | ASAN                | :x:                |       |
 
@@ -18,7 +18,7 @@ This project currently provides a freestanding implementation of the Undefined B
 ## Dependencies
 * `<stdbool.h>`
 * `<stdint.h>`
-* `<stdarg.h>`
+* `<string.h>` for `memcpy`
 * GCC or LLVM
 * Make
 * Python3 (Optional)
@@ -26,9 +26,13 @@ This project currently provides a freestanding implementation of the Undefined B
 
 ## Optional Runtime Dependencies
 * `<stdio.h>`
+* `<stdarg.h>`
   * Used in the default logging module. Can be omitted by defining a custom function.
 * `<stdlib.h>`
   * Used in the default termination module. Can be omitted by defining a custom function.
+* `<stdatomic.h>`
+* `<execinfo.h>`
+  * Used to provide backtrace.
 
 ## Configuration options
 
