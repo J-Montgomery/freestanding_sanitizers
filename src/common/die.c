@@ -1,13 +1,13 @@
 #include "die.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <sanitizer/config.h>
 
-#define EXIT_FAILURE_CODE (1)
-
-// Declare our alias
 EXTERN_C void ATTR_NORETURN ATTR_ALIAS("__sanitizer_die_impl") Die(void);
 
 #if SANITIZER_CONFIG_DIE_ENABLE == 1
+
+#include <stdlib.h>
+
+#define EXIT_FAILURE_CODE (1)
 
 EXTERN_C void ATTR_NORETURN __sanitizer_die_impl(void) {
   exit(EXIT_FAILURE_CODE);

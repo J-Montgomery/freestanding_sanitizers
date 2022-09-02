@@ -1,10 +1,6 @@
-#include "backtrace.h"
-#include <stdatomic.h>
-#include <stdbool.h>
+#include <sanitizer/config.h>
 
-#ifdef __STDC_NO_ATOMICS__
-#error "Atomics not available on target platform"
-#endif
+#include "backtrace.h"
 
 EXTERN_C void ATTR_ALIAS("__sanitizer_enable_backtrace_impl")
     __sanitizer_enable_backtrace(bool enable);
@@ -15,17 +11,18 @@ EXTERN_C void ATTR_ALIAS("__sanitizer_print_backtrace_impl")
 
 #if SANITIZER_CONFIG_BACKTRACE_ENABLE == 1
 
-#include <errno.h>
+#include <execinfo.h>
+
+#include <stdatomic.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <execinfo.h>
-#include <unistd.h>
-
 #include "logger.h"
-#include <sanitizer/platform.h>
 
-#include <stdio.h>
+#ifdef __STDC_NO_ATOMICS__
+#error "Atomics not available on target platform"
+#endif
 
 volatile atomic_bool __sanitizer_backtrace_flag;
 

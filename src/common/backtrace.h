@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sanitizer/config.h>
 #include <sanitizer/interface_utils.h>
 #include <stdbool.h>
 
