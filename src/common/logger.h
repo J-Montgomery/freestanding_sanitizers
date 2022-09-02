@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sanitizer/config.h>
 #include <sanitizer/interface_utils.h>
 
 typedef enum { LOG_SILENT, LOG_ERROR, LOG_FATAL, LOG_UNKNOWN } LogLevel;

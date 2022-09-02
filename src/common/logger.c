@@ -1,5 +1,4 @@
-#include <stdarg.h>
-#include <stdio.h>
+#include <sanitizer/config.h>
 
 #include "logger.h"
 
@@ -12,6 +11,9 @@ ATTR_ALIAS("__sanitizer_log_printf_impl") int __sanitizer_log_printf(
     LogLevel Level, const char *Format, ...);
 
 #if SANITIZER_CONFIG_LOGGER_ENABLE == 1
+
+#include <stdarg.h>
+#include <stdio.h>
 
 static const char *LevelToStr(LogLevel Level) {
   switch (Level) {
