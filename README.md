@@ -56,3 +56,23 @@ The following options control sanitizer functionality:
   * This option depends on `<stdatomic.h>` and `__attribute__((constructor))` because callstack printing can be dynamically enabled or disabled from multiple threads by calling `__sanitizer_enable_backtrace`.
 
 All configuration defaults are set in `include/sanitizer/config.h`
+
+## Integrating libfreesan into your project
+
+  # Before you start
+
+  When integrating libfreesan into your project, first consider whether you can
+  make use of the sanitizers typically provided with your compiler. Toolchain-
+  -supplied sanitizers are guaranteed to have full compatibility with the
+  compiler version they ship with, a guarantee this project inherently cannot
+  make.
+
+  Demonstration projects showing how to integrate available sanitizers are
+  provided in the `demo/` folder.
+
+  # Steps
+
+  1. Compile the relevant sanitizers for your project. The default settings are recommended, but check the documented [configuration options](#configuration-options)
+  2. Compile your application with the appropriate `-fsanitize` settings. Refer to the documentation for your compiler version for details. The latest documentation is available [here for GCC](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html) and [here for clang](https://clang.llvm.org/docs/UsersManual.html).
+  3. Link your application with the sanitizers built in the `lib/` folder. Take care to ensure that the linker correctly picks up the sanitizer libraries we've just built and not any built-in sanitizer runtimes your toolchain may ship with using `ldd` or similar.
+  4. Run your application.
