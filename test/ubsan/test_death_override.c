@@ -9,6 +9,9 @@ void __attribute__((noreturn)) Die(void) {
 
 int main() {
   int *nullptr = (void *)0x0;
+
+  /* CHECK: store to null pointer of type 'int' */
+  /* CHECK: Custom Death Message\n */
   *nullptr = 1;
 
   return 0;

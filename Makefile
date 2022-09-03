@@ -18,7 +18,7 @@ ASAN_OBJ := $(patsubst %.c, %.o, $(ASAN_SRC))
 
 OUT_DIR=lib
 
-.PHONY: clean run_ubsan_tests
+.PHONY: clean run_ubsan_tests run_new_ubsan_tests
 
 all: ubsan asan
 
@@ -46,9 +46,11 @@ output_dir:
 	@mkdir -p $(OUT_DIR)
 
 format:
-	find . -iname *.h -o -iname *.c | xargs clang-format -i
+	find . -iname *.h -o -iname *.c -not -path "./test/*" | xargs clang-format -i
 
 test: ubsan asan run_ubsan_tests run_asan_tests
+
+test2: ubsan run_new_ubsan_tests
 
 clean:
 	rm -f $(UBSAN_OBJ) $(ASAN_OBJ)
