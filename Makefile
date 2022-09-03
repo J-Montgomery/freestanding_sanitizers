@@ -18,7 +18,7 @@ ASAN_OBJ := $(patsubst %.c, %.o, $(ASAN_SRC))
 
 OUT_DIR=lib
 
-.PHONY: clean run_ubsan_tests run_new_ubsan_tests
+.PHONY: clean run_ubsan_tests run_new_ubsan_tests format py-format
 
 all: ubsan asan
 
@@ -47,6 +47,9 @@ output_dir:
 
 format:
 	find . -iname *.h -o -iname *.c -not -path "./test/*" | xargs clang-format -i
+
+py-format:
+	black test/test_runner.py
 
 test: ubsan asan run_ubsan_tests run_asan_tests
 
