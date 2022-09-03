@@ -50,8 +50,6 @@ format:
 
 test: ubsan asan run_ubsan_tests run_asan_tests
 
-test2: ubsan run_new_ubsan_tests
-
 clean:
 	rm -f $(UBSAN_OBJ) $(ASAN_OBJ)
 	rm -rf $(OUT_DIR)

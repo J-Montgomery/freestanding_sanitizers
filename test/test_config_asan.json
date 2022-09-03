@@ -1,5 +1,0 @@
-{
-    "asan_base": {
-        "output1": "__asan_init"
-    }
-}

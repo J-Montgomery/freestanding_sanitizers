@@ -10,6 +10,9 @@ ASAN_UNUSUAL_TESTS := $(patsubst %.c, %, $(ASAN_UNUSUAL_TEST_SRC))
 ASAN_UNUSUAL_FLAGS := -fno-sanitize-recover=all
 
 
+ASAN_TEST_LIST_SRC = $(ASAN_TEST_SRC) $(ASAN_UNUSUAL_TEST_SRC)
+ASAN_TEST_LIST_EXE = $(ASAN_TESTS) $(ASAN_UNUSUAL_TESTS)
+
 $(ASAN_UNUSUAL_TEST_SRC):
 	LIBRARY_PATH=./lib $(CC) $(ASAN_TEST_CFLAGS) $(ASAN_TEST_LDFLAGS) $(@:=.c) -o $@
 
@@ -19,4 +22,4 @@ $(ASAN_UNUSUAL_TESTS):
 build_asan_tests: $(ASAN_TESTS) $(ASAN_UNUSUAL_TESTS)
 
 run_asan_tests: build_asan_tests
-	LD_LIBRARY_PATH=./lib python3 test/test_runner.py --verbose -c test/test_config_asan.json $(ASAN_TESTS) $(ASAN_UNUSUAL_TESTS)
+	LD_LIBRARY_PATH=./lib python3 test/test_runner.py --verbose -s $(ASAN_TEST_LIST_SRC) -t $(ASAN_TEST_LIST_EXE)

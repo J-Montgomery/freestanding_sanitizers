@@ -9,8 +9,8 @@ UBSAN_UNUSUAL_TEST_SRC += $(UBSAN_SRC_DIR)/test_death_override.c $(UBSAN_SRC_DIR
 UBSAN_UNUSUAL_TESTS := $(patsubst %.c, %, $(UBSAN_UNUSUAL_TEST_SRC))
 UBSAN_UNUSUAL_FLAGS := -fno-sanitize-recover=all -fsanitize=float-divide-by-zero
 
-TEST_LIST_SRC = $(UBSAN_TEST_SRC) $(UBSAN_UNUSUAL_TEST_SRC)
-TEST_LIST_EXE = $(UBSAN_TESTS) $(UBSAN_UNUSUAL_TESTS)
+UBSAN_TEST_LIST_SRC = $(UBSAN_TEST_SRC) $(UBSAN_UNUSUAL_TEST_SRC)
+UBSAN_TEST_LIST_EXE = $(UBSAN_TESTS) $(UBSAN_UNUSUAL_TESTS)
 
 
 $(UBSAN_TESTS):
@@ -22,7 +22,4 @@ $(UBSAN_UNUSUAL_TESTS):
 build_ubsan_tests: $(UBSAN_TESTS) $(UBSAN_UNUSUAL_TESTS)
 
 run_ubsan_tests: build_ubsan_tests
-	LD_LIBRARY_PATH=./lib python3 test/test_runner.py --verbose -c test/test_config.json $(UBSAN_TESTS) $(UBSAN_UNUSUAL_TESTS)
-
-run_new_ubsan_tests: build_ubsan_tests
-	LD_LIBRARY_PATH=./lib python3 test/new_test_runner.py -s $(TEST_LIST_SRC) -t $(TEST_LIST_EXE)
+	LD_LIBRARY_PATH=./lib python3 test/test_runner.py -s $(UBSAN_TEST_LIST_SRC) -t $(UBSAN_TEST_LIST_EXE)
