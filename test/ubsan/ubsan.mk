@@ -2,10 +2,15 @@ UBSAN_TEST_CFLAGS=-ggdb3 -Wall -Wextra -pedantic -std=c99 -fsanitize=undefined
 UBSAN_TEST_LDFLAGS=-rdynamic -Wl,-Llib -Wl,-l:libubsan.so.1
 
 UBSAN_SRC_DIR = test/ubsan
-UBSAN_TEST_SRC += $(UBSAN_SRC_DIR)/signed_addition_overflow.c $(UBSAN_SRC_DIR)/shift_overflow.c $(UBSAN_SRC_DIR)/signed_invalid_division.c $(UBSAN_SRC_DIR)/unsigned_invalid_division.c  $(UBSAN_SRC_DIR)/nonnull_return.c $(UBSAN_SRC_DIR)/invalid_load_bool.c
+UBSAN_CONVERSION_TESTS =
+UBSAN_FLOAT_TESTS =
+UBSAN_INTEGER_TESTS = $(UBSAN_SRC_DIR)/integer/signed_addition_overflow.c $(UBSAN_SRC_DIR)/integer/shift_overflow.c $(UBSAN_SRC_DIR)/integer/signed_invalid_division.c $(UBSAN_SRC_DIR)/integer/unsigned_invalid_division.c
+UBSAN_MISC_TESTS = $(UBSAN_SRC_DIR)/misc/invalid_load_bool.c $(UBSAN_SRC_DIR)/misc/nonnull_return.c
+UBSAN_POINTER_TESTS =
+UBSAN_TEST_SRC += $(UBSAN_CONVERSION_TESTS) $(UBSAN_FLOAT_TESTS) $(UBSAN_INTEGER_TESTS) $(UBSAN_MISC_TESTS) $(UBSAN_POINTER_TESTS)
 UBSAN_TESTS := $(patsubst %.c, %, $(UBSAN_TEST_SRC))
 
-UBSAN_UNUSUAL_TEST_SRC += $(UBSAN_SRC_DIR)/test_death_override.c $(UBSAN_SRC_DIR)/float_invalid_division.c
+UBSAN_UNUSUAL_TEST_SRC += $(UBSAN_SRC_DIR)/misc/test_death_override.c $(UBSAN_SRC_DIR)/float/float_invalid_division.c
 UBSAN_UNUSUAL_TESTS := $(patsubst %.c, %, $(UBSAN_UNUSUAL_TEST_SRC))
 UBSAN_UNUSUAL_FLAGS := -fno-sanitize-recover=all -fsanitize=float-divide-by-zero
 
