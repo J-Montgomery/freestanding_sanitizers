@@ -6,8 +6,8 @@
 int main() {
   uint64_t a = UINT64_MAX;
 
+  /* CHECK: (.*)overflow\.c:.*: unsigned integer overflow: value cannot be represented in type 'long int' */
   a += 1;
-  printf("Test %lu\n", a);
 
   return 0;
 }

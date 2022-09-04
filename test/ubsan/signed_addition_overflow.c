@@ -4,8 +4,8 @@
 int main() {
   int64_t a = INT64_MAX;
 
+  /* CHECK: signed integer overflow: value cannot be represented in type 'long int' */
   a += 1;
-  printf("Test %lu\n", a);
 
   return 0;
 }

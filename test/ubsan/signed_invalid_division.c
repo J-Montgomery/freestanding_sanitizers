@@ -4,7 +4,8 @@
 int main() {
   int a = -314159;
 
-  printf("Test %i\n", a / 0);
+  /* CHECK: division cannot be represented in type 'int' */
+  int b = a / 0;
 
   return 0;
 }

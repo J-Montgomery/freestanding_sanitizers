@@ -19,10 +19,12 @@ This project currently provides a freestanding implementation of the Undefined B
 * `<stdbool.h>`
 * `<stdint.h>`
 * `<string.h>` for `memcpy`
-* GCC or LLVM
+* GCC or Clang
 * Make
-* Python3 (Optional)
+* Python3 (optional)
   * Used to run and validate test cases.
+* clang-format and black (optional)
+  * Used to autoformat source code
 
 ## Optional Runtime Dependencies
 * `<stdio.h>`
