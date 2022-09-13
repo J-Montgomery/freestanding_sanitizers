@@ -18,7 +18,7 @@ ASAN_OBJ := $(patsubst %.c, %.o, $(ASAN_SRC))
 
 OUT_DIR=lib
 
-.PHONY: clean run_ubsan_tests run_new_ubsan_tests format py-format
+.PHONY: clean run_ubsan_tests run_asan_tests format py-format
 
 all: ubsan asan
 
@@ -51,7 +51,7 @@ format:
 py-format:
 	black test/test_runner.py
 
-test: ubsan asan run_ubsan_tests run_asan_tests
+test: ubsan run_ubsan_tests
 
 clean:
 	rm -f $(UBSAN_OBJ) $(ASAN_OBJ)
