@@ -321,6 +321,7 @@ static void HandleCfiBadType(CFICheckFailData *Data, ValuePtr Vtable,
   case CFITCK_VMFCall:
   case CFITCK_ICall:
   case CFITCK_NVMFCall:
+  default:
     EmitError(&Data->Loc,
               "control flow integrity check failed during %s (vtable address "
               "0x%lx)\n",
