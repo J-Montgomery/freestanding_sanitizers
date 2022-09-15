@@ -68,18 +68,18 @@ void PrintValue(TypeDescriptor Type, ValuePtr Val) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer) {
-  ValuePtr alignment = (ValuePtr)1 << Data->Alignment;
+static void HandleTypeMismatchImpl(TypeMismatchData *Data, ValuePtr Pointer,
+                                   ValuePtr Alignment) {
 
   if (!Pointer) {
     EmitError(&Data->Loc, "%s null pointer of type %s\n",
               TypeCheckKinds[Data->Kind], getTypeName(Data->Type));
-  } else if (Pointer & (alignment - 1)) {
+  } else if (Pointer & (Alignment - 1)) {
     EmitError(&Data->Loc,
               "%s misaligned address %p for type %s which requires %li byte "
               "alignment\n",
               TypeCheckKinds[Data->Kind], (void *)Pointer,
-              getTypeName(Data->Type), alignment);
+              getTypeName(Data->Type), Alignment);
   } else {
     EmitError(
         &Data->Loc,
@@ -275,6 +275,10 @@ static void HandleInvalidBuiltin(InvalidBuiltinData *Data) {
             ((Data->Kind) == CTZPassedZero) ? "ctz" : "clz");
 }
 
+/* Keep in mind that the legacy APIs do not provide a SourceLocation, so an
+ * invalid SourceLocation is provided by the handler. EmitError() correctly
+ * calls LocIsValid() here so everything is fine, but edits beware
+ */
 static void HandleNonNullReturn(NonNullReturnData *Data, SourceLocation *LocPtr,
                                 bool IsAttr) {
   __sanitizer_print_backtrace();
@@ -317,6 +321,7 @@ static void HandleCfiBadType(CFICheckFailData *Data, ValuePtr Vtable,
   case CFITCK_VMFCall:
   case CFITCK_ICall:
   case CFITCK_NVMFCall:
+  default:
     EmitError(&Data->Loc,
               "control flow integrity check failed during %s (vtable address "
               "0x%lx)\n",
@@ -359,13 +364,29 @@ static void HandleDynamicTypeCacheMiss(DynamicTypeCacheMissData *Data,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 
+/* The older API provides the alignment directly */
+void __ubsan_handle_type_mismatch(TypeMismatchData *Data, ValuePtr Pointer) {
+  HandleTypeMismatchImpl(Data, Pointer, Data->Alignment);
+}
+
+void __ubsan_handle_type_mismatch_abort(TypeMismatchData *Data,
+                                        ValuePtr Pointer) {
+  HandleTypeMismatchImpl(Data, Pointer, Data->Alignment);
+  Die();
+}
+
+/* The new API provides the integer log of the alignment, so we compute the real
+ * alignment as (1 << log_alignment)
+ */
 void __ubsan_handle_type_mismatch_v1(TypeMismatchData *Data, ValuePtr Pointer) {
-  HandleTypeMismatchImpl(Data, Pointer);
+  ValuePtr Alignment = (ValuePtr)1 << Data->Alignment;
+  HandleTypeMismatchImpl(Data, Pointer, Alignment);
 }
 
 void __ubsan_handle_type_mismatch_v1_abort(TypeMismatchData *Data,
                                            ValuePtr Pointer) {
-  HandleTypeMismatchImpl(Data, Pointer);
+  ValuePtr Alignment = (ValuePtr)1 << Data->Alignment;
+  HandleTypeMismatchImpl(Data, Pointer, Alignment);
   Die();
 }
 
@@ -529,6 +550,19 @@ void __ubsan_handle_invalid_builtin_abort(InvalidBuiltinData *Data) {
 
 /******************************************************************************/
 
+void __ubsan_handle_nonnull_return(NonNullReturnData *Data) {
+  /* Construct an invalid SourceLocation */
+  SourceLocation Loc = {.Filename = (char *)0, .Column = 0, .Line = 0};
+  HandleNonNullReturn(Data, &Loc, true);
+}
+
+void __ubsan_handle_nonnull_return_abort(NonNullReturnData *Data) {
+  /* Construct an invalid SourceLocation */
+  SourceLocation Loc = {.Filename = (char *)0, .Column = 0, .Line = 0};
+  HandleNonNullReturn(Data, &Loc, true);
+  Die();
+}
+
 void __ubsan_handle_nonnull_return_v1(NonNullReturnData *Data,
                                       SourceLocation *LocPtr) {
   HandleNonNullReturn(Data, LocPtr, true);
@@ -541,6 +575,19 @@ void __ubsan_handle_nonnull_return_v1_abort(NonNullReturnData *Data,
 }
 
 /******************************************************************************/
+
+void __ubsan_handle_nullability_return(NonNullReturnData *Data) {
+  /* Construct an invalid SourceLocation */
+  SourceLocation Loc = {.Filename = (char *)0, .Column = 0, .Line = 0};
+  HandleNonNullReturn(Data, &Loc, false);
+}
+
+void __ubsan_handle_nullability_return_abort(NonNullReturnData *Data) {
+  /* Construct an invalid SourceLocation */
+  SourceLocation Loc = {.Filename = (char *)0, .Column = 0, .Line = 0};
+  HandleNonNullReturn(Data, &Loc, false);
+  Die();
+}
 
 void __ubsan_handle_nullability_return_v1(NonNullReturnData *Data,
                                           SourceLocation *LocPtr) {
@@ -607,6 +654,22 @@ void __ubsan_handle_cfi_check_fail_abort(CFICheckFailData *Data, ValuePtr Value,
   Die();
 }
 
+/******************************************************************************/
+/* The legacy and *_v1 APIs are identical as far as prototype goes, so we can
+ * simply declare aliases instead.
+ */
+
+EXTERN_C void ATTR_ALIAS("__ubsan_handle_function_type_mismatch_v1")
+    __ubsan_handle_function_type_mismatch(FunctionTypeMismatchData *Data,
+                                          ValuePtr Val, ValuePtr calleeRTTI,
+                                          ValuePtr fnRTTI);
+
+EXTERN_C void ATTR_ALIAS("__ubsan_handle_function_type_mismatch_v1_abort")
+    __ubsan_handle_function_type_mismatch_abort(FunctionTypeMismatchData *Data,
+                                                ValuePtr Val,
+                                                ValuePtr calleeRTTI,
+                                                ValuePtr fnRTTI);
+
 void __ubsan_handle_function_type_mismatch_v1(FunctionTypeMismatchData *Data,
                                               ValuePtr Val, ValuePtr calleeRTTI,
                                               ValuePtr fnRTTI) {
@@ -619,6 +682,8 @@ void __ubsan_handle_function_type_mismatch_v1_abort(
   HandleFunctionTypeMismatch(Data, Val, calleeRTTI, fnRTTI);
   Die();
 }
+
+/******************************************************************************/
 
 void __ubsan_handle_dynamic_type_cache_miss(DynamicTypeCacheMissData *Data,
                                             ValuePtr Ptr, ValuePtr Hash) {

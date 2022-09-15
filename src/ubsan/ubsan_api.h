@@ -8,6 +8,7 @@
 
 #define RECOVERABLE(fname, ...) SANITIZER_RECOVERABLE(ubsan, fname, __VA_ARGS__)
 
+RECOVERABLE(type_mismatch, TypeMismatchData *Data, ValuePtr Pointer)
 RECOVERABLE(type_mismatch_v1, TypeMismatchData *Data, ValuePtr Pointer)
 
 RECOVERABLE(alignment_assumption, AlignmentAssumptionData *Data,
@@ -34,7 +35,10 @@ RECOVERABLE(implicit_conversion, ImplicitConversionData *Data, ValuePtr Src,
 
 RECOVERABLE(invalid_builtin, InvalidBuiltinData *Data)
 
+RECOVERABLE(nonnull_return, NonNullReturnData *Data)
 RECOVERABLE(nonnull_return_v1, NonNullReturnData *Data, SourceLocation *Loc)
+
+RECOVERABLE(nullability_return, NonNullReturnData *Data)
 RECOVERABLE(nullability_return_v1, NonNullReturnData *Data, SourceLocation *Loc)
 
 RECOVERABLE(nonnull_arg, NonNullArgData *Data)
@@ -53,6 +57,9 @@ RECOVERABLE(cfi_check_fail, CFICheckFailData *Data, ValuePtr Value,
             sys_uptr ValidVtable)
 UNRECOVERABLE(cfi_bad_type, CFICheckFailData *Data, ValuePtr Vtable,
               bool ValidVtable)
+
+RECOVERABLE(function_type_mismatch, FunctionTypeMismatchData *Data,
+            ValuePtr Function, ValuePtr calleeRTTI, ValuePtr fnRTTI)
 
 RECOVERABLE(function_type_mismatch_v1, FunctionTypeMismatchData *Data,
             ValuePtr Function, ValuePtr calleeRTTI, ValuePtr fnRTTI)
